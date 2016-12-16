@@ -26,7 +26,11 @@ available on the system used to run this program
 
 As usual, qubits are ordered from left to right on the quantum states psi>
 
-#For instance, python QCSim.py prog.ql produces:
+For instance, 
+
+python QCSim.py prog.ql 
+
+produces:
 
 Number of qbits:  3
 
