@@ -1,5 +1,5 @@
 # Quantum Computer Simulator
-# Luis Villasenor
+ Luis Villasenor
  lvillasen@gmail.com
  12/16/2016
 
@@ -11,7 +11,7 @@ Compatible with IBM Quantum Experience
 
 #Usage 
 
-#python QCSim.py prog.ql
+python QCSim.py prog.ql
 where:
 prog.ql is the program to be simulated
 
@@ -23,7 +23,7 @@ available on the system used to run this program
 
 As usual, qubits are ordered from left to right on the quantum states psi>
 
-#For instance if prog.ql contains
+For instance if prog.ql contains
 h q[0];
 h q[1];
 x q[2];
@@ -36,7 +36,7 @@ measure q[0];
 measure q[1];
 measure q[2];
 
-#The output of python QCSim.py prog.ql is
+The output of python QCSim.py prog.ql is
 Number of qbits:  3
 Initial state: |psi> = 1|000>
 Gate h on qbit 0
