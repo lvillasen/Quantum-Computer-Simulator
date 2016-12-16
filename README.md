@@ -3,8 +3,6 @@
  
  lvillasen@gmail.com
  
-Date: 12-15-2016
-
 #Ideal simulator of a quantum computer 
 Written in Python
 
