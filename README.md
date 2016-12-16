@@ -14,11 +14,11 @@ Compatible with IBM Quantum Experience
 
 where:
 
-prog.ql is the program to be simulated
+prog.ql is the program to be simulated,
 
-The syntax is fully compatible with that used in the IBM Quantum 
+the syntax is fully compatible with that used on the 
 
-Experience webpage (https://quantumexperience.ng.bluemix.net/)
+	IBM Quantum Experience webpage (https://quantumexperience.ng.bluemix.net/)
 
 The maximum number of qubits is limited in a natural way by the resources 
 
