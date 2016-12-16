@@ -20,7 +20,7 @@ The syntax is fully compatible with that used in the IBM Quantum
 
 Experience webpage (https://quantumexperience.ng.bluemix.net/)
 
-The number of qubits is limited in a natural way by the resources 
+The maximum number of qubits is limited in a natural way by the resources 
 
 available on the system used to run this program
 
