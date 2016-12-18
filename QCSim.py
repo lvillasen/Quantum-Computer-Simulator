@@ -28,12 +28,17 @@ for i in range(len(myList)):
 		a=[int(s) for s in before.split()[1] if s.isdigit()]
 		if len(a)==1:qbit= a[0]
 		if len(a)==2:qbit= 10*a[0]+a[1]
+		if len(a)>2:sys.exit("Try again with a lower number of qbits")
 		n_qbits=max(n_qbits, qbit+1)
 	if g=='cx':
 		a=[int(s) for s in before.split()[1] if s.isdigit()]
-		qbit_c= a[0]
+		if len(a)==1:qbit_c= a[0]
+		if len(a)==2:qbit_c= 10*a[0]+a[1]
+		if len(a)>2:sys.exit("Try again with a lower number of qbits")
 		a=[int(s) for s in before.split()[2] if s.isdigit()]
-		qbit_t= a[0]
+		if len(a)==1:qbit_t= a[0]
+		if len(a)==2:qbit_t= 10*a[0]+a[1]
+		if len(a)>2:sys.exit("Try again with a lower number of qbits")
 		n_qbits=max(n_qbits, qbit_c+1)
 		n_qbits=max(n_qbits, qbit_t+1)
 print('Number of qbits: ',n_qbits)
@@ -153,7 +158,7 @@ for i in range(len(myList)):
 		print('Gate cx on control qbit =', qbit_c,' and target qbit =',qbit_t),
 		p=1
 	if p==1:
-		printf('\tresulted in state |psi> = '),
+		printf('resulted in state |psi> = '),
 		k1=0
 		psi=''
 		for k in range(2**n_qbits):
@@ -170,7 +175,8 @@ for i in range(len(myList)):
 	B = [0 for i in range(2**n_qbits)]
 	if g =='measure':
 		a=[int(s) for s in before.split()[1] if s.isdigit()]
-		qbit= a[0]
+		if len(a)==1:qbit= a[0]
+		if len(a)==2:qbit= 10*a[0]+a[1]
 		M[qbit]=1
 		m+=2**qbit
 		print('Measure qbit', qbit) 
@@ -190,4 +196,3 @@ for i in range(2**np.sum(M)):
 	if P[i]!=0: 
 		printf('P('+str(s_i)+') = '),
 		print(P[i])	
-
