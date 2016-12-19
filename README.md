@@ -25,7 +25,7 @@ This is an ideal simulator. The maximum number of qubits it can handle is limite
 
 by the resources available on the system used to run these programs
 
-As usual, qubits are ordered from left to right on the quantum states psi>
+As usual, qubits are ordered from left to right on the quantum states |psi>
 
 For instance, to simulate the example provided, you just type
 
