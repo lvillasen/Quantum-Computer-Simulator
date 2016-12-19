@@ -3,10 +3,11 @@
  
  lvillasen@gmail.com
  
-#Ideal simulator of a quantum computer 
-Written in Python
+#Simulator of a quantum computer written in Python
 
-Compatible with IBM Quantum Experience
+Fully compatible with the syntax and output code of IBM's Quantum Experience
+
+	IBM Quantum Experience (https://quantumexperience.ng.bluemix.net/)
 
 #Usage 
 
@@ -14,23 +15,23 @@ Compatible with IBM Quantum Experience
 
 where:
 
-prog.ql is the program to be simulated,
+prog.ql is one example of a program to be simulated. 
 
-the syntax is fully compatible with that used on 
+For many more examples, the possibility to use 
 
-	IBM Quantum Experience (https://quantumexperience.ng.bluemix.net/)
+a real quantum computer and an excellent tutorial, you can visit the website "IBM Quantum Experience"
 
-The maximum number of qubits is limited in a natural way by the resources 
+This is an ideal simulator. The maximum number of qubits it can handle is limited in a natural way 
 
-available on the system used to run this program
+by the resources available on the system used to run these programs
 
 As usual, qubits are ordered from left to right on the quantum states psi>
 
-For instance, 
+For instance, to simulate the example provided, you just type
 
 	python QCSim.py prog.ql 
 
-produces:
+It produces the following output:
 
 Number of qbits:  3
 
