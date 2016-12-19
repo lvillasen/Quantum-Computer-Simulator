@@ -15,11 +15,11 @@ Fully compatible with the syntax and output code of IBM's Quantum Experience
 
 where:
 
-prog.ql is one example of a program to be simulated. 
+prog.ql is one example that illustrates the syntax of this particular quantum simulation language.  
 
-For many more examples, the possibility to use 
+For many more examples, the possibility to use a real quantum computer and 
 
-a real quantum computer and an excellent tutorial, you can visit the website "IBM Quantum Experience"
+an excellent tutorial, you can visit the website "IBM Quantum Experience"
 
 This is an ideal simulator. The maximum number of qubits it can handle is limited in a natural way 
 
@@ -33,54 +33,54 @@ For instance, to simulate the example provided, you just type
 
 It produces the following output:
 
-Number of qbits:  3
+	Number of qbits:  3
 
-Initial state: |psi> = 1|000>
+	Initial state: |psi> = 1|000>
 
-Gate h on qbit 0
+	Gate h on qbit 0
 
-resulted in state |psi> = 0.707106781187|000> + 0.707106781187|100>
-	
-Gate h on qbit 1
+	resulted in state |psi> = 0.707106781187|000> + 0.707106781187|100>
 
-resulted in state |psi> = 0.5|000> + 0.5|100> + 0.5|010> + 0.5|110>
-	
-Gate x on qbit 2
+	Gate h on qbit 1
 
-resulted in state |psi> = 0.5|001> + 0.5|101> + 0.5|011> + 0.5|111> 
-	
-Gate cx on control qbit = 1  and target qbit = 2
+	resulted in state |psi> = 0.5|000> + 0.5|100> + 0.5|010> + 0.5|110>
 
-resulted in state |psi> = 0.5|010> + 0.5|110> + 0.5|001> + 0.5|101> 
-	
-Gate cx on control qbit = 0  and target qbit = 2
+	Gate x on qbit 2
 
-resulted in state |psi> = 0.5|100> + 0.5|010> + 0.5|001> + 0.5|111> 
-	
-Gate h on qbit 0
+	resulted in state |psi> = 0.5|001> + 0.5|101> + 0.5|011> + 0.5|111> 
 
-resulted in state |psi> = 0.353553390593|000> - 0.353553390593|100> +
-	
-0.353553390593|010> + 0.353553390593|110> + 0.353553390593|001> +
+	Gate cx on control qbit = 1  and target qbit = 2
 
-0.353553390593|101> + 0.353553390593|011> - 0.353553390593|111>
+	resulted in state |psi> = 0.5|010> + 0.5|110> + 0.5|001> + 0.5|101> 
 
-Gate h on qbit 1
+	Gate cx on control qbit = 0  and target qbit = 2
 
-resulted in state |psi> = 0.5|000> - 0.5|110> + 0.5|001> + 0.5|111> 
-	
-Gate h on qbit 2
+	resulted in state |psi> = 0.5|100> + 0.5|010> + 0.5|001> + 0.5|111> 
 
-resulted in state |psi> = 0.707106781187|000> - 0.707106781187|111> 
-	
-Measure qbit 0
+	Gate h on qbit 0
 
-Measure qbit 1
+	resulted in state |psi> = 0.353553390593|000> - 0.353553390593|100> +
 
-Measure qbit 2
+	0.353553390593|010> + 0.353553390593|110> + 0.353553390593|001> +
 
-Probabilities after measurement:
+	0.353553390593|101> + 0.353553390593|011> - 0.353553390593|111>
 
-P(000) = 0.5
+	Gate h on qbit 1
 
-P(111) = 0.5
+	resulted in state |psi> = 0.5|000> - 0.5|110> + 0.5|001> + 0.5|111> 
+
+	Gate h on qbit 2
+
+	resulted in state |psi> = 0.707106781187|000> - 0.707106781187|111> 
+
+	Measure qbit 0
+
+	Measure qbit 1
+
+	Measure qbit 2
+
+	Probabilities after measurement:
+
+	P(000) = 0.5
+
+	P(111) = 0.5
