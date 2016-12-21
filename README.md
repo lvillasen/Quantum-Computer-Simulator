@@ -1,4 +1,4 @@
-# Quantum Computer Simulator in Python
+# Quantum Computer Simulator written in Python
  Luis Villasenor
  
  lvillasen@gmail.com
