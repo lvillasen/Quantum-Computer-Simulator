@@ -1,11 +1,9 @@
-# Quantum Computer Simulator
+# Quantum Computer Simulator in Python
  Luis Villasenor
  
  lvillasen@gmail.com
- 
-#Simulator of a quantum computer written in Python
 
-Fully compatible with the syntax and output code of IBM's Quantum Experience
+Compatible with the syntax and output code of IBM's Quantum Experience
 
 	IBM Quantum Experience (https://quantumexperience.ng.bluemix.net/)
 
