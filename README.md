@@ -96,6 +96,7 @@ It produces the following output:
 	P(111) = 0.5
 
 The example program provided
+
 	h q[0];
 	h q[1];
 	x q[2];
