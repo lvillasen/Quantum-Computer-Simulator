@@ -25,6 +25,16 @@ This is an ideal simulator. The maximum number of qubits it can handle is limite
 
 by the resources available on the system used to run these programs
 
+It implements an automatic extension of the range of qubits in commands, for instance
+	
+	h q[0:1];
+	
+is equivalent to
+
+	h q[0];
+	
+	h q[1];
+
 As usual, qubits are ordered from left to right on the quantum states |psi>
 
 For instance, to simulate the example provided, you just type
@@ -84,3 +94,15 @@ It produces the following output:
 	P(000) = 0.5
 
 	P(111) = 0.5
+
+The same program can be written as
+
+	h q[0:1];
+	
+	x q[2];
+	
+	cx q[1:0], q[2];
+	
+	h q[0:2];
+	
+	measure q[0:2];
