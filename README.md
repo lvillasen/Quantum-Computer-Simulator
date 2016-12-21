@@ -98,11 +98,7 @@ It produces the following output:
 The same program can be written as
 
 	h q[0:1];
-	
 	x q[2];
-	
 	cx q[1:0], q[2];
-	
 	h q[0:2];
-	
 	measure q[0:2];
