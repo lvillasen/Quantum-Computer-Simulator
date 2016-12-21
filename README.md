@@ -32,7 +32,6 @@ It implements an automatic extension of the range of qubits in commands, for ins
 is equivalent to
 
 	h q[0];
-	
 	h q[1];
 
 As usual, qubits are ordered from left to right on the quantum states |psi>
