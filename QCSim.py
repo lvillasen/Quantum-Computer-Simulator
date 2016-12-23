@@ -30,7 +30,7 @@ def print_state(g,n_qbits,A,B,C):
 	print
 	for  k in range(2**n_qbits): C[k]=B[k]
 	for  k in range(2**n_qbits): A[k]=B[k]
-	return
+	return A,C
 def get_qbits(command):
 	before, sep, after = command.rpartition(";")
 	before1, sep1, after1 = before.split()[1].rpartition(":")
@@ -80,7 +80,110 @@ def get_qbits(command):
 			qbit_t_i=qbit
 			qbit_t_f=qbit
 	return qbit_c_i,qbit_c_f,qbit_t_i,qbit_t_f
-		
+def ID(n_qbits,A,B):
+	B = [0 for i in range(2**n_qbits)]
+	for j in range(2**n_qbits):
+		if A[j] != 0:
+			B[j]+=A[j]
+	print(B)
+	return B
+def H(n_qbits,qbit,A,B):
+	B = [0 for i in range(2**n_qbits)]
+	for j in range(2**n_qbits):
+		if A[j] != 0:
+			bit_parity=(j>>qbit)%2
+			if bit_parity == 0:
+				B[j]+=1/np.sqrt(2)*A[j]
+				B[set_bit(j,qbit)]+=1/np.sqrt(2)*A[j]
+			if bit_parity == 1:
+				B[clear_bit(j,qbit)]+=1/np.sqrt(2)*A[j]
+				B[j]+=-1/np.sqrt(2)*A[j]
+	return B
+def X(n_qbits,qbit,A,B):
+	B = [0 for i in range(2**n_qbits)]
+	for j in range(2**n_qbits):
+		if A[j] != 0:
+			bit_parity=(j>>qbit)%2
+			if bit_parity == 0:
+				B[set_bit(j,qbit)]+=A[j]
+			if bit_parity == 1:
+				B[clear_bit(j,qbit)]+=A[j]
+	return B
+def Y(n_qbits,qbit,A,B):
+	B = [0 for i in range(2**n_qbits)]
+	for j in range(2**n_qbits):
+		if A[j] != 0:
+			bit_parity=(j>>qbit)%2
+			if bit_parity == 0:
+				B[set_bit(j,qbit)]+=1j*A[j]
+			if bit_parity == 1:
+				B[clear_bit(j,qbit)]+=-1j*A[j]
+	return B
+def Z(n_qbits,qbit,A,B):
+	B = [0 for i in range(2**n_qbits)]
+	for j in range(2**n_qbits):
+		if A[j] != 0:
+			bit_parity=(j>>qbit)%2
+			if bit_parity == 0:
+				B[j]+=A[j]
+			if bit_parity == 1:
+				B[j]+=-A[j]
+	return B
+def S(n_qbits,qbit,A,B):
+	B = [0 for i in range(2**n_qbits)]
+	for j in range(2**n_qbits):
+		if A[j] != 0:
+			bit_parity=(j>>qbit)%2
+			if bit_parity == 0:
+				B[j]+=A[j]
+			if bit_parity == 1:
+				B[j]+=1j*A[j]
+	return B
+def Sdg(n_qbits,qbit,A,B):
+	B = [0 for i in range(2**n_qbits)]
+	for j in range(2**n_qbits):
+		if A[j] != 0:
+			bit_parity=(j>>qbit)%2
+			if bit_parity == 0:
+				B[j]+=A[j]
+			if bit_parity == 1:
+				B[j]+=-1j*A[j]
+	return B
+def T(n_qbits,qbit,A,B):
+	B = [0 for i in range(2**n_qbits)]
+	for j in range(2**n_qbits):
+		if A[j] != 0:
+			bit_parity=(j>>qbit)%2
+			if bit_parity == 0:
+				B[j]+=A[j]
+			if bit_parity == 1:
+				B[j]+=1/np.sqrt(2)*(1+1j)*A[j]
+	return B
+def Tdg(n_qbits,qbit,A,B):
+	B = [0 for i in range(2**n_qbits)]
+	for j in range(2**n_qbits):
+		if A[j] != 0:
+			bit_parity=(j>>qbit)%2
+			if bit_parity == 0:
+				B[j]+=A[j]
+			if bit_parity == 1:
+				B[j]+=1/np.sqrt(2)*(1-1j)*A[j]
+	return B
+def CX(n_qbits,qbit_c,qbit_t,A,B):
+	B = [0 for i in range(2**n_qbits)]
+	for j in range(2**n_qbits):
+		if A[j] != 0:
+			bit_parity_c=(j>>qbit_c)%2
+			bit_parity_t=(j>>qbit_t)%2
+			if bit_parity_c == 0:
+				B[j]+=A[j]
+			else:
+				if bit_parity_t== 0:
+					B[set_bit(j,qbit_t)]+=A[j]
+				else:
+					B[clear_bit(j,qbit_t)]+=A[j]
+	print('Gate cx on control qbit =', qbit_c,' and target qbit =',qbit_t),	
+	return B			
 if len(sys.argv) > 1:
 	file=sys.argv[1]
 f = open(file,"r") #opens file with qc program
@@ -127,212 +230,92 @@ for i in range(len(List)):
 		if g =='id':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							B[j]+=A[j]
-					print_state(g,n_qbits,A,B,C)
+					B = ID(n_qbits,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							B[j]+=A[j]
-					print_state(g,n_qbits,A,B,C)
+					B = ID(n_qbits,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 ################### gate h
 		if g=='h':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[j]+=1/np.sqrt(2)*A[j]
-								B[set_bit(j,qbit)]+=1/np.sqrt(2)*A[j]
-							if bit_parity == 1:
-								B[clear_bit(j,qbit)]+=1/np.sqrt(2)*A[j]
-								B[j]+=-1/np.sqrt(2)*A[j]
-					print_state(g,n_qbits,A,B,C)		
+					B = H(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)		
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[j]+=1/np.sqrt(2)*A[j]
-								B[set_bit(j,qbit)]+=1/np.sqrt(2)*A[j]
-							if bit_parity == 1:
-								B[clear_bit(j,qbit)]+=1/np.sqrt(2)*A[j]
-								B[j]+=-1/np.sqrt(2)*A[j]
-					print_state(g,n_qbits,A,B,C)
+					B = H(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 ################### gate x			
 		if g=='x':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[set_bit(j,qbit)]+=A[j]
-							if bit_parity == 1:
-								B[clear_bit(j,qbit)]+=A[j]	
-					print_state(g,n_qbits,A,B,C)
+					B = X(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[set_bit(j,qbit)]+=A[j]
-							if bit_parity == 1:
-								B[clear_bit(j,qbit)]+=A[j]	
-					print_state(g,n_qbits,A,B,C)
+					B = X(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 ################### gate y
 		if g =='y':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[set_bit(j,qbit)]+=1j*A[j]
-							if bit_parity == 1:
-								B[clear_bit(j,qbit)]+=-1j*A[j]	
-					print_state(g,n_qbits,A,B,C)
+					B = Y(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[set_bit(j,qbit)]+=1j*A[j]
-							if bit_parity == 1:
-								B[clear_bit(j,qbit)]+=-1j*A[j]	
-					print_state(g,n_qbits,A,B,C)
+					B = Y(n_qbits,qbit,A,B)	
+					A,C = print_state(g,n_qbits,A,B,C)
 ################### gate z					
 		if g =='z':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[j]+=A[j]
-							if bit_parity == 1:
-								B[j]+=-A[j]	
-					print_state(g,n_qbits,A,B,C)
+					B = Z(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[j]+=A[j]
-							if bit_parity == 1:
-								B[j]+=-A[j]	
-					print_state(g,n_qbits,A,B,C)
+					B = Z(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 ################### gate s
 		if g =='s':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[j]+=A[j]
-							if bit_parity == 1:
-								B[j]+=1j*A[j]	
-					print_state(g,n_qbits,A,B,C)
+					B = S(n_qbits,qbit,A,B)	
+					A,C = print_state(g,n_qbits,A,B,C)
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[j]+=A[j]
-							if bit_parity == 1:
-								B[j]+=1j*A[j]	
-					print_state(g,n_qbits,A,B,C)
+					B = S(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 ################### gate sdg
 		if g =='sdg':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[j]+=A[j]
-							if bit_parity == 1:
-								B[j]+=-1j*A[j]
-					print_state(g,n_qbits,A,B,C)
+					B = Sdg(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[j]+=A[j]
-							if bit_parity == 1:
-								B[j]+=-1j*A[j]
-					print_state(g,n_qbits,A,B,C)
+					B = Sdg(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 ################### gate t
 		if g =='t':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[j]+=A[j]
-							if bit_parity == 1:
-								B[j]+=1/np.sqrt(2)*(1+1j)*A[j]
-					print_state(g,n_qbits,A,B,C)
+					B = T(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[j]+=A[j]
-							if bit_parity == 1:
-								B[j]+=1/np.sqrt(2)*(1+1j)*A[j]
-					print_state(g,n_qbits,A,B,C)
+					B = T(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 ################### gate tdg
 		if g =='tdg':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[j]+=A[j]
-							if bit_parity == 1:
-								B[j]+=1/np.sqrt(2)*(1-1j)*A[j]
-					print_state(g,n_qbits,A,B,C)
+					B = Tdg(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
-					B = [0 for i in range(2**n_qbits)]
-					for j in range(2**n_qbits):
-						if A[j] != 0:
-							bit_parity=(j>>qbit)%2
-							if bit_parity == 0:
-								B[j]+=A[j]
-							if bit_parity == 1:
-								B[j]+=1/np.sqrt(2)*(1-1j)*A[j]
-					print_state(g,n_qbits,A,B,C)
+					B = Tdg(n_qbits,qbit,A,B)
+					A,C = print_state(g,n_qbits,A,B,C)
 ############ 2-qubit gates
 ################### gate cx
 	if g == 'cx':
@@ -340,80 +323,32 @@ for i in range(len(List)):
 		if qbit_c_f > qbit_c_i and qbit_t_i == qbit_t_f: # qbit_c_f > qbit_c_i qbit_t_i == qbit_t_f
 			qbit_t = qbit_t_i
 			for qbit_c in range(qbit_c_i,qbit_c_f+1):
-				B = [0 for i in range(2**n_qbits)]
-				for j in range(2**n_qbits):
-					if A[j] != 0:
-						bit_parity_c=(j>>qbit_c)%2
-						bit_parity_t=(j>>qbit_t)%2
-						if bit_parity_c == 0:
-							B[j]+=A[j]
-						else:
-							if bit_parity_t== 0:
-								B[set_bit(j,qbit_t)]+=A[j]
-							else:
-								B[clear_bit(j,qbit_t)]+=A[j]
-				print('Gate cx on control qbit =', qbit_c,' and target qbit =',qbit_t),
-				print_state(g,n_qbits,A,B,C)
+				B = CX(n_qbits,qbit_c,qbit_t,A,B)
+				A,C = print_state(g,n_qbits,A,B,C)
 		elif qbit_c_f < qbit_c_i and qbit_t_i == qbit_t_f: # qbit_c_f < qbit_c_i qbit_t_i == qbit_t_f
 			qbit_t = qbit_t_i
 			for qbit_c in range(qbit_c_i,qbit_c_f-1,-1):
-				B = [0 for i in range(2**n_qbits)]
-				for j in range(2**n_qbits):
-					if A[j] != 0:
-						bit_parity_c=(j>>qbit_c)%2
-						bit_parity_t=(j>>qbit_t)%2
-						if bit_parity_c == 0:
-							B[j]+=A[j]
-						else:
-							if bit_parity_t== 0:
-								B[set_bit(j,qbit_t)]+=A[j]
-							else:
-								B[clear_bit(j,qbit_t)]+=A[j]
-				print('Gate cx on control qbit =', qbit_c,' and target qbit =',qbit_t),
-				print_state(g,n_qbits,A,B,C)
+				B = CX(n_qbits,qbit_c,qbit_t,A,B)
+				A,C = print_state(g,n_qbits,A,B,C)
 		elif qbit_c_f == qbit_c_i and qbit_t_i >= qbit_t_f: # qbit_c_f == qbit_c_i and qbit_t_i >= qbit_t_f
 			qbit_c = qbit_c_i
 			for qbit_t in range(qbit_t_i,qbit_t_f+1):
-				B = [0 for i in range(2**n_qbits)]
-				for j in range(2**n_qbits):
-					if A[j] != 0:
-						bit_parity_c=(j>>qbit_c)%2
-						bit_parity_t=(j>>qbit_t)%2
-						if bit_parity_c == 0:
-							B[j]+=A[j]
-						else:
-							if bit_parity_t == 0:
-								B[set_bit(j,qbit_t)]+=A[j]
-							else:
-								B[clear_bit(j,qbit_t)]+=A[j]
-				print('Gate cx on control qbit =', qbit_c,' and target qbit =',qbit_t),
-				print_state(g,n_qbits,A,B,C)
+				B = CX(n_qbits,qbit_c,qbit_t,A,B)
+				A,C = print_state(g,n_qbits,A,B,C)
 		elif qbit_c_f == qbit_c_i and qbit_t_i >= qbit_t_f: # qbit_c_f == qbit_c_i and qbit_t_i < qbit_t_f
 			qbit_c = qbit_c_i
 			for qbit_t in range(qbit_t_i,qbit_t_f-1,-1):
-				B = [0 for i in range(2**n_qbits)]
-				for j in range(2**n_qbits):
-					if A[j] != 0:
-						bit_parity_c=(j>>qbit_c)%2
-						bit_parity_t=(j>>qbit_t)%2
-						if bit_parity_c == 0:
-							B[j]+=A[j]
-						else:
-							if bit_parity_t == 0:
-								B[set_bit(j,qbit_t)]+=A[j]
-							else:
-								B[clear_bit(j,qbit_t)]+=A[j]
-				print('Gate cx on control qbit =', qbit_c,' and target qbit =',qbit_t),
-				print_state(g,n_qbits,A,B,C)
+				B = CX(n_qbits,qbit_c,qbit_t,A,B)				
+				A,C = print_state(g,n_qbits,A,B,C)
 ################### measure
 	if g == 'measure':
 		if qbit_f >= qbit_i:
 			for qbit in range(qbit_i,qbit_f+1):
-				M[qbit]=1
+				M[qbit] = 1
 				print('Measure qbit', qbit) 
 		elif qbit_f < qbit_i:
 			for qbit in range(qbit_i,qbit_f-1,-1):
-				M[qbit]=1
+				M[qbit] = 1
 				print('Measure qbit', qbit) 
 P=[0 for i in range(2**np.sum(M))]
 for i in range(2**n_qbits):
