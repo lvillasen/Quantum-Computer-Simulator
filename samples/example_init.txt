@@ -1,0 +1,3 @@
+init q[0];
+h q[0];
+measure q[0];
