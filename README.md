@@ -9,11 +9,11 @@ Compatible with the syntax and output code of IBM's Quantum Experience
 
 #Usage 
 
-	python QCSim.py prog.ql
+	python QCSim.py samples/example_GHZ.txt 
 
 where:
 
-prog.ql is one example that illustrates the syntax of this particular quantum simulation language.  
+example_GHZ.txt is one example that illustrates the syntax of this particular quantum simulation language.  
 
 For many more examples, the possibility to use a real quantum computer and 
 
@@ -34,11 +34,11 @@ is equivalent to
 
 As usual, qubits are ordered from left to right on the quantum states |psi>
 
-For instance, to simulate the example provided, you just type
+The output of
 
-	python QCSim.py prog.ql 
+	python QCSim.py samples/example_GHZ.txt
 
-It produces the following output:
+is
 
 	Number of qbits:  3
 	Initial state: |psi> = 1|000>
@@ -66,8 +66,10 @@ It produces the following output:
 	Probabilities after measurement:
 	P(000) = 0.5
 	P(111) = 0.5
+	
+	If latex is installed figure circ.ps was created
 
-The example program provided
+The example
 
 	h q[0];
 	h q[1];
@@ -88,3 +90,5 @@ can also be written as
 	cx q[1:0], q[2];
 	h q[0:2];
 	measure q[0:2];
+	
+If the latex command is found, the circuit is created in ps format by using the qasm2tex.py code from I. Chuang (https://www.media.mit.edu/quanta/qasm2circ/)
