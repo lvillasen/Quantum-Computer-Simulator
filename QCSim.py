@@ -330,7 +330,7 @@ for i in range(len(List)):
 			for qbit_c in range(qbit_c_i,qbit_c_f-1,-1):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)
 				A,C = print_state(g,n_qbits,A,B,C)
-		elif qbit_c_f == qbit_c_i and qbit_t_i >= qbit_t_f: # qbit_c_f == qbit_c_i and qbit_t_i >= qbit_t_f
+		elif qbit_c_f == qbit_c_i and qbit_t_f >= qbit_t_i: # qbit_c_f == qbit_c_i and qbit_t_f >= qbit_t_i
 			qbit_c = qbit_c_i
 			for qbit_t in range(qbit_t_i,qbit_t_f+1):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)
