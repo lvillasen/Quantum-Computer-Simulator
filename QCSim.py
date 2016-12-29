@@ -487,4 +487,6 @@ for i in range(2**np.sum(M)):
 os.system("python qasm2tex.py QS.qasm > circ.tex")
 os.system("latex circ.tex >/dev/null 2>&1")
 os.system("dvips -D2400 -E circ.dvi >/dev/null 2>&1")
-print('\nIf latex is installed figure circ.ps was created\n')
+cmd_exists = lambda x: any(os.access(os.path.join(path, x), os.X_OK) for path in os.environ["PATH"].split(os.pathsep))
+if cmd_exists('latex') == True:
+	print('\nIf latex is installed correctly then figure circ.ps was created\n')
