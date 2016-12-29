@@ -1,21 +1,31 @@
 # Quantum Computer Simulator
 # Luis Villasenor
 # lvillasen@gmail.com
-# 12/16/2016
+# 12/16/2016 Notation compatible with IBM's Quantum Experience (http://www.research.ibm.com/quantum/)
+# 12/18/2016 added compact notation to expand gates applied to sequences of qubits 
+# 12/26/2016 added init command to initialize qubits 
+# 12/28/2016 added  qasm2tex.py code from I. Chuang to plot circuit (https://www.media.mit.edu/quanta/qasm2circ/)
+
 # Usage
-# python QCSim.py prog.ql
+# python QCSim.py samples/example_Bell.txt
 from __future__ import print_function
 import numpy as np
 import sys
 import string
+import os
+import random
+
 def printf(str, *args):
     print(str % args, end='')
+
 def set_bit(value, bit):
     return value | (1<<bit)
+
 def clear_bit(value, bit):
     return value & ~(1<<bit)
+
 def print_state(g,n_qbits,A,B,C):
-	if g != 'cx': print('Gate',g,'on qbit', qbit), 
+	if g != 'cx': print('Gate',g,'on qubit', qbit), 
 	printf('  resulted in state |psi> = '),
 	k1=0
 	psi=''
@@ -31,6 +41,7 @@ def print_state(g,n_qbits,A,B,C):
 	for  k in range(2**n_qbits): C[k]=B[k]
 	for  k in range(2**n_qbits): A[k]=B[k]
 	return A,C
+
 def get_qbits(command):
 	before, sep, after = command.rpartition(";")
 	before1, sep1, after1 = before.split()[1].rpartition(":")
@@ -80,13 +91,14 @@ def get_qbits(command):
 			qbit_t_i=qbit
 			qbit_t_f=qbit
 	return qbit_c_i,qbit_c_f,qbit_t_i,qbit_t_f
+
 def ID(n_qbits,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
 		if A[j] != 0:
 			B[j]+=A[j]
-	print(B)
 	return B
+
 def H(n_qbits,qbit,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
@@ -99,6 +111,7 @@ def H(n_qbits,qbit,A,B):
 				B[clear_bit(j,qbit)]+=1/np.sqrt(2)*A[j]
 				B[j]+=-1/np.sqrt(2)*A[j]
 	return B
+
 def X(n_qbits,qbit,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
@@ -109,6 +122,7 @@ def X(n_qbits,qbit,A,B):
 			if bit_parity == 1:
 				B[clear_bit(j,qbit)]+=A[j]
 	return B
+
 def Y(n_qbits,qbit,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
@@ -119,6 +133,7 @@ def Y(n_qbits,qbit,A,B):
 			if bit_parity == 1:
 				B[clear_bit(j,qbit)]+=-1j*A[j]
 	return B
+
 def Z(n_qbits,qbit,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
@@ -129,6 +144,7 @@ def Z(n_qbits,qbit,A,B):
 			if bit_parity == 1:
 				B[j]+=-A[j]
 	return B
+
 def S(n_qbits,qbit,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
@@ -139,6 +155,7 @@ def S(n_qbits,qbit,A,B):
 			if bit_parity == 1:
 				B[j]+=1j*A[j]
 	return B
+
 def Sdg(n_qbits,qbit,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
@@ -149,6 +166,7 @@ def Sdg(n_qbits,qbit,A,B):
 			if bit_parity == 1:
 				B[j]+=-1j*A[j]
 	return B
+
 def T(n_qbits,qbit,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
@@ -159,6 +177,7 @@ def T(n_qbits,qbit,A,B):
 			if bit_parity == 1:
 				B[j]+=1/np.sqrt(2)*(1+1j)*A[j]
 	return B
+
 def Tdg(n_qbits,qbit,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
@@ -169,6 +188,7 @@ def Tdg(n_qbits,qbit,A,B):
 			if bit_parity == 1:
 				B[j]+=1/np.sqrt(2)*(1-1j)*A[j]
 	return B
+
 def CX(n_qbits,qbit_c,qbit_t,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
@@ -182,42 +202,83 @@ def CX(n_qbits,qbit_c,qbit_t,A,B):
 					B[set_bit(j,qbit_t)]+=A[j]
 				else:
 					B[clear_bit(j,qbit_t)]+=A[j]
-	print('Gate cx on control qbit =', qbit_c,' and target qbit =',qbit_t),	
-	return B			
+	print('Gate cx on control qubit =', qbit_c,' and target qubit =',qbit_t),	
+	return B
+
 if len(sys.argv) > 1:
 	file=sys.argv[1]
-f = open(file,"r") #opens file with qc program
+f = open(file,"r") #opens file with QS program
 List = []
 for line in f:
     List.append(line)
 n_qbits =0
+q_i=-2;q_f=-2
+
 for i in range(len(List)):
 	command=List[i]
 	before, sep, after = command.rpartition(";")
 	before1, sep1, after1 = before.split()[1].rpartition(":")
 	g=before.split( )[0]
-	if g =='id' or g=='h' or g=='x' or g=='y' or g=='z' or g=='s' or g=='sdg' or g=='t' or g=='tdg' or g=='measure':
+	if g == 'init' or g =='id' or g=='h' or g=='x' or g=='y' or g=='z' or g=='s' or g=='sdg' or g=='t' or g=='tdg' or g=='measure':
 		qbit_i,qbit_f,q,q = get_qbits(command)
 		n_qbits=max(n_qbits, qbit_i+1)
 		n_qbits=max(n_qbits, qbit_f+1)
-	elif g =='cx':
+		if g == 'init': 
+			q_i=qbit_i
+			q_f=qbit_f			
+	elif g == 'cx':
 		qbit_c_i,qbit_c_f,qbit_t_i,qbit_t_f = get_qbits(command)
 		n_qbits=max(n_qbits, qbit_c_f+1)
 		n_qbits=max(n_qbits, qbit_t_f+1)
 
-print('Number of qbits: ',n_qbits)
+print('\nNumber of qubits: ',n_qbits)
+os.system("echo '# Quantum score'  > QS.qasm")
+Sd="\'"+str('{S}^{\\dagger}')+"\'"
+cmd = 'echo "\t 	def	Sd,0,%s"  >> QS.qasm'%(Sd)
+os.system(cmd)
+Td="\'"+str('{T}^{\\dagger}')+"\'"
+cmd = 'echo "\t 	def	Td,0,%s"  >> QS.qasm'%(Td)
+os.system(cmd)
+for qbit in range(n_qbits):
+	if qbit >= q_i and qbit <= q_f:
+		cmd = 'echo "\t	qubit Q%s"  >> QS.qasm'%(qbit)
+		os.system(cmd)
+	else:
+		cmd = 'echo "\t	qubit Q%s,0"  >> QS.qasm'%(qbit)
+		os.system(cmd)
+
+
 A = [0 for i in range(2**n_qbits)]
 B = [0 for i in range(2**n_qbits)]
 C = [0 for i in range(2**n_qbits)]
 M = [0 for i in range(n_qbits)]
-A[0]=1
+if q_i == -2:
+	A[0]=1
+else:
+	A_norm=0
+	for k in range(2**n_qbits):
+		if k >= 2**q_i -1 and k <= 2**(q_f+1)-1: 
+			A[k] = random.uniform(-1,1)+1j*random.uniform(-1,1)
+			if q_i == -2 and k == 0: A[k] = 1
+
+			A_norm+=np.absolute(A[k])**2
+	A=A/np.sqrt(A_norm)
+C=A
+
+
 printf('Initial state: |psi> = '),
-for i in range(2**n_qbits):
-	s_i=("{:0%db}"%n_qbits).format(i)[::-1]
-	if A[i] != 0: 
-		printf(str(A[i])), 
-		printf(str('|'+s_i+'>')),
-printf('\n')
+k1=0
+psi=''
+for k in range(2**n_qbits):
+	s_i=("{:0%db}"%n_qbits).format(k)[::-1]
+	if A[k] != 0: 
+		k1+=1
+		if k1==1:psi+=str(A[k])+'|'+s_i+'> '
+		else:psi+='+ '+str(A[k])+str('|'+s_i+'> ')
+psi=string.replace(psi,'+ -', '- ')
+print(psi)
+print
+
 for i in range(len(List)):
 	command=List[i]
 	before, sep, after = List[i].rpartition(";")
@@ -236,86 +297,127 @@ for i in range(len(List)):
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = ID(n_qbits,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					
 ################### gate h
 		if g=='h':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = H(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)		
+					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	h Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)		
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = H(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	h Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)	
+
 ################### gate x			
 		if g=='x':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = X(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	X Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = X(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	X Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)	
+
 ################### gate y
 		if g =='y':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = Y(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	Y Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = Y(n_qbits,qbit,A,B)	
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	Y Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)	
+
 ################### gate z					
 		if g =='z':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = Z(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	Z Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = Z(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	Z Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)	
+
 ################### gate s
 		if g =='s':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = S(n_qbits,qbit,A,B)	
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	S Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = S(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	S Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)	
+
 ################### gate sdg
 		if g =='sdg':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = Sdg(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	Sd Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = Sdg(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	Sd Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)	
+
 ################### gate t
 		if g =='t':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = T(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	T Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = T(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	T Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)	
+
 ################### gate tdg
 		if g =='tdg':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = Tdg(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	Td Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = Tdg(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,A,B,C)
+					cmd = "echo  '\t	Td Q%s'  >> QS.qasm"%(qbit)
+					os.system(cmd)
+
 ############ 2-qubit gates
 ################### gate cx
 	if g == 'cx':
@@ -325,31 +427,45 @@ for i in range(len(List)):
 			for qbit_c in range(qbit_c_i,qbit_c_f+1):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)
 				A,C = print_state(g,n_qbits,A,B,C)
+				cmd = "echo  '\t	cnot Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
+				os.system(cmd)
 		elif qbit_c_f < qbit_c_i and qbit_t_i == qbit_t_f: # qbit_c_f < qbit_c_i qbit_t_i == qbit_t_f
 			qbit_t = qbit_t_i
 			for qbit_c in range(qbit_c_i,qbit_c_f-1,-1):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)
 				A,C = print_state(g,n_qbits,A,B,C)
-		elif qbit_c_f == qbit_c_i and qbit_t_f >= qbit_t_i: # qbit_c_f == qbit_c_i and qbit_t_f >= qbit_t_i
+				cmd = "echo  '\t	cnot Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
+				os.system(cmd)
+		elif qbit_c_f == qbit_c_i and qbit_t_f >= qbit_t_i: # qbit_c_f == qbit_c_i and qbit_t_f > qbit_t_i
 			qbit_c = qbit_c_i
 			for qbit_t in range(qbit_t_i,qbit_t_f+1):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)
 				A,C = print_state(g,n_qbits,A,B,C)
+				cmd = "echo  '\t	cnot Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
+				os.system(cmd)
 		elif qbit_c_f == qbit_c_i and qbit_t_i >= qbit_t_f: # qbit_c_f == qbit_c_i and qbit_t_i < qbit_t_f
 			qbit_c = qbit_c_i
 			for qbit_t in range(qbit_t_i,qbit_t_f-1,-1):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)				
 				A,C = print_state(g,n_qbits,A,B,C)
+				cmd = "echo  '\t	cnot Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
+				os.system(cmd)
+
 ################### measure
 	if g == 'measure':
 		if qbit_f >= qbit_i:
 			for qbit in range(qbit_i,qbit_f+1):
 				M[qbit] = 1
-				print('Measure qbit', qbit) 
+				print('Measure qubit', qbit)
+				cmd = "echo  '\t 	measure Q%s'  >> QS.qasm"%(qbit)
+				os.system(cmd)	 
 		elif qbit_f < qbit_i:
 			for qbit in range(qbit_i,qbit_f-1,-1):
 				M[qbit] = 1
-				print('Measure qbit', qbit) 
+				print('Measure qubit', qbit)
+				cmd = "echo  '\t	measure Q%s'  >> QS.qasm"%(qbit)
+				os.system(cmd)	 
+
 P=[0 for i in range(2**np.sum(M))]
 for i in range(2**n_qbits):
 	s_i = ("{:0%db}"%n_qbits).format(i)
@@ -360,9 +476,15 @@ for i in range(2**n_qbits):
 			num+=((i>>j)&1)*2**k
 			k+=1
 	P[num]+=+np.absolute(C[i])**2
+
 print('Probabilities after measurement:')
 for i in range(2**np.sum(M)):
 	s_i = ("{:0%db}"%np.sum(M)).format(i)[::-1]
 	if P[i] != 0: 
 		printf('P('+str(s_i)+') = '),
 		print(P[i])	
+
+os.system("python qasm2tex.py QS.qasm > circ.tex")
+os.system("latex circ.tex >/dev/null 2>&1")
+os.system("dvips -D2400 -E circ.dvi >/dev/null 2>&1")
+print('\nIf latex is installed figure circ.ps was created\n')
