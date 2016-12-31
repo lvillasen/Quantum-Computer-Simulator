@@ -40,34 +40,27 @@ The output of
 
 is
 
-	Number of qbits:  3
-	Initial state: |psi> = 1|000>
-	Gate h on qbit 0
-	resulted in state |psi> = 0.707106781187|000> + 0.707106781187|100>
-	Gate h on qbit 1
-	resulted in state |psi> = 0.5|000> + 0.5|100> + 0.5|010> + 0.5|110>
-	Gate x on qbit 2
-	resulted in state |psi> = 0.5|001> + 0.5|101> + 0.5|011> + 0.5|111> 
-	Gate cx on control qbit = 1  and target qbit = 2
-	resulted in state |psi> = 0.5|010> + 0.5|110> + 0.5|001> + 0.5|101> 
-	Gate cx on control qbit = 0  and target qbit = 2
-	resulted in state |psi> = 0.5|100> + 0.5|010> + 0.5|001> + 0.5|111> 
-	Gate h on qbit 0
-	resulted in state |psi> = 0.353553390593|000> - 0.353553390593|100> +
-	0.353553390593|010> + 0.353553390593|110> + 0.353553390593|001> +
-	0.353553390593|101> + 0.353553390593|011> - 0.353553390593|111>
-	Gate h on qbit 1
-	resulted in state |psi> = 0.5|000> - 0.5|110> + 0.5|001> + 0.5|111> 
-	Gate h on qbit 2
-	resulted in state |psi> = 0.707106781187|000> - 0.707106781187|111> 
-	Measure qbit 0
-	Measure qbit 1
-	Measure qbit 2
+	Number of qubits:  3
+	Initial state: |psi> = (1.000)|000> 
+	Gate h on qubit 0
+	Gate h on qubit 1
+	Gate x on qubit 2
+	Gate cx on control qubit 1  and target qubit 2
+	Gate cx on control qubit 0  and target qubit 2
+	Gate h on qubit 0
+	Gate h on qubit 1
+	Gate h on qubit 2
+	Measure qubit 0
+
 	Probabilities after measurement:
-	P(000) = 0.5
-	P(111) = 0.5
-	
-	If latex is installed figure circ.ps was created
+
+	P(|0>) = 0.5
+	|psi> = (1.000)|000>
+
+	P(|1>) = 0.5
+	|psi> = (-1.000)|111>
+
+	If latex is installed correctly then figure circ.ps was created
 
 The example
 
@@ -90,5 +83,11 @@ can also be written as
 	cx q[1:0], q[2];
 	h q[0:2];
 	measure q[0:2];
+
+The command
+
+	init q[k];
+	
+initializes the first k qubits to a random superposition
 	
 If the latex command is found, the circuit is created in ps format by using the qasm2tex.py code from I. Chuang (https://www.media.mit.edu/quanta/qasm2circ/)
