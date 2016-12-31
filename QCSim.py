@@ -24,20 +24,21 @@ def set_bit(value, bit):
 def clear_bit(value, bit):
     return value & ~(1<<bit)
 
-def print_state(g,n_qbits,A,B,C):
+def print_state(g,n_qbits,verbose,A,B,C):
 	if g != 'cx': print('Gate',g,'on qubit', qbit), 
-	printf('  resulted in state |psi> = '),
-	k1=0
-	psi=''
-	for k in range(2**n_qbits):
-		s_i=("{:0%db}"%n_qbits).format(k)[::-1]
-		if B[k] != 0: 
-			k1+=1
-			if k1==1:psi+=str(B[k])+'|'+s_i+'> '
-			else:psi+='+ '+str(B[k])+str('|'+s_i+'> ')
-	psi=string.replace(psi,'+ -', '- ')
-	print(psi)
-	print
+	if verbose == 1:
+		printf('  resulted in state |psi> = '),
+		k1=0
+		psi=''
+		for k in range(2**n_qbits):
+			s_i=("{:0%db}"%n_qbits).format(k)[::-1]
+			if B[k] != 0: 
+				k1+=1
+				if k1 == 1: psi += str('({:.3f}'.format(B[k])) + ')' + '|'+s_i+'> '
+				else:psi += '+ '+ str('({:.3f}'.format(B[k])) + ')' + str('|'+s_i+'> ')
+		psi=string.replace(psi,'+ -', '- ')
+		print(psi)
+		print
 	for  k in range(2**n_qbits): C[k]=B[k]
 	for  k in range(2**n_qbits): A[k]=B[k]
 	return A,C
@@ -202,7 +203,7 @@ def CX(n_qbits,qbit_c,qbit_t,A,B):
 					B[set_bit(j,qbit_t)]+=A[j]
 				else:
 					B[clear_bit(j,qbit_t)]+=A[j]
-	print('Gate cx on control qubit =', qbit_c,' and target qubit =',qbit_t),	
+	print('Gate cx on control qubit', qbit_c,' and target qubit',qbit_t),	
 	return B
 
 if len(sys.argv) > 1:
@@ -213,19 +214,21 @@ for line in f:
     List.append(line)
 n_qbits =0
 q_i=-2;q_f=-2
-
+verbose = 0
 for i in range(len(List)):
 	command=List[i]
 	before, sep, after = command.rpartition(";")
 	before1, sep1, after1 = before.split()[1].rpartition(":")
 	g=before.split( )[0]
-	if g == 'init' or g =='id' or g=='h' or g=='x' or g=='y' or g=='z' or g=='s' or g=='sdg' or g=='t' or g=='tdg' or g=='measure':
+	if g == 'init' or g =='id' or g=='h' or g=='x' or g=='y' or g=='z' or g=='s' or g=='sdg' or g=='t' or g=='tdg' or g=='measure' or g == 'verbose':
 		qbit_i,qbit_f,q,q = get_qbits(command)
 		n_qbits=max(n_qbits, qbit_i+1)
 		n_qbits=max(n_qbits, qbit_f+1)
 		if g == 'init': 
 			q_i=qbit_i
-			q_f=qbit_f			
+			q_f=qbit_f	
+		if g == 'verbose':
+			verbose = qbit_i	
 	elif g == 'cx':
 		qbit_c_i,qbit_c_f,qbit_t_i,qbit_t_f = get_qbits(command)
 		n_qbits=max(n_qbits, qbit_c_f+1)
@@ -273,8 +276,8 @@ for k in range(2**n_qbits):
 	s_i=("{:0%db}"%n_qbits).format(k)[::-1]
 	if A[k] != 0: 
 		k1+=1
-		if k1==1:psi+=str(A[k])+'|'+s_i+'> '
-		else:psi+='+ '+str(A[k])+str('|'+s_i+'> ')
+		if k1 == 1:psi += str('({:.3f}'.format(A[k])) + ')' + '|'+s_i+'> '
+		else:psi+='+ '+ str('({:.3f}'.format(A[k])) + ')' + str('|'+s_i+'> ')
 psi=string.replace(psi,'+ -', '- ')
 print(psi)
 print
@@ -292,24 +295,24 @@ for i in range(len(List)):
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = ID(n_qbits,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = ID(n_qbits,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					
 ################### gate h
 		if g=='h':
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = H(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	h Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)		
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = H(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	h Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)	
 
@@ -318,13 +321,13 @@ for i in range(len(List)):
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = X(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	X Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = X(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	X Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)	
 
@@ -333,13 +336,13 @@ for i in range(len(List)):
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = Y(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Y Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = Y(n_qbits,qbit,A,B)	
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Y Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)	
 
@@ -348,13 +351,13 @@ for i in range(len(List)):
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = Z(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Z Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = Z(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Z Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)	
 
@@ -363,13 +366,13 @@ for i in range(len(List)):
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = S(n_qbits,qbit,A,B)	
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	S Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = S(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	S Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)	
 
@@ -378,13 +381,13 @@ for i in range(len(List)):
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = Sdg(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Sd Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = Sdg(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Sd Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)	
 
@@ -393,13 +396,13 @@ for i in range(len(List)):
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = T(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	T Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = T(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	T Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)	
 
@@ -408,13 +411,13 @@ for i in range(len(List)):
 			if qbit_f >= qbit_i:
 				for qbit in range(qbit_i,qbit_f+1):
 					B = Tdg(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Td Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = Tdg(n_qbits,qbit,A,B)
-					A,C = print_state(g,n_qbits,A,B,C)
+					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Td Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)
 
@@ -426,28 +429,28 @@ for i in range(len(List)):
 			qbit_t = qbit_t_i
 			for qbit_c in range(qbit_c_i,qbit_c_f+1):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)
-				A,C = print_state(g,n_qbits,A,B,C)
+				A,C = print_state(g,n_qbits,verbose,A,B,C)
 				cmd = "echo  '\t	cnot Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
 				os.system(cmd)
 		elif qbit_c_f < qbit_c_i and qbit_t_i == qbit_t_f: # qbit_c_f < qbit_c_i qbit_t_i == qbit_t_f
 			qbit_t = qbit_t_i
 			for qbit_c in range(qbit_c_i,qbit_c_f-1,-1):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)
-				A,C = print_state(g,n_qbits,A,B,C)
+				A,C = print_state(g,n_qbits,verbose,A,B,C)
 				cmd = "echo  '\t	cnot Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
 				os.system(cmd)
 		elif qbit_c_f == qbit_c_i and qbit_t_f >= qbit_t_i: # qbit_c_f == qbit_c_i and qbit_t_f > qbit_t_i
 			qbit_c = qbit_c_i
 			for qbit_t in range(qbit_t_i,qbit_t_f+1):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)
-				A,C = print_state(g,n_qbits,A,B,C)
+				A,C = print_state(g,n_qbits,verbose,A,B,C)
 				cmd = "echo  '\t	cnot Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
 				os.system(cmd)
 		elif qbit_c_f == qbit_c_i and qbit_t_i >= qbit_t_f: # qbit_c_f == qbit_c_i and qbit_t_i < qbit_t_f
 			qbit_c = qbit_c_i
 			for qbit_t in range(qbit_t_i,qbit_t_f-1,-1):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)				
-				A,C = print_state(g,n_qbits,A,B,C)
+				A,C = print_state(g,n_qbits,verbose,A,B,C)
 				cmd = "echo  '\t	cnot Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
 				os.system(cmd)
 
@@ -467,22 +470,42 @@ for i in range(len(List)):
 				os.system(cmd)	 
 
 P=[0 for i in range(2**np.sum(M))]
+Amp=['' for i in range(2**np.sum(M))]
+
 for i in range(2**n_qbits):
-	s_i = ("{:0%db}"%n_qbits).format(i)
 	num=0
 	k=0
-	for j in range(len(M)):
+	for j in range(n_qbits):
 		if M[j] == 1:
 			num+=((i>>j)&1)*2**k
 			k+=1
-	P[num]+=+np.absolute(C[i])**2
+	P[num] += np.absolute(C[i])**2
 
-print('Probabilities after measurement:')
+for i in range(2**n_qbits):
+	num=0
+	k=0
+	for j in range(n_qbits):
+		if M[j] == 1:
+			num+=((i>>j)&1)*2**k
+			k+=1
+	s_i = ("{:0%db}"%(n_qbits)).format(i)[::-1]
+	if np.absolute(C[i]) > 0:
+		if len(Amp[num]) == 0:
+			Amp[num] = Amp[num] + str('({:.3f}'.format(C[i]/np.sqrt(P[num]))) + ')' + '|' + str(s_i) + '>'
+		else:
+			Amp[num] = Amp[num] + str(' + ({:.3f}'.format(C[i]/np.sqrt(P[num]))) + ')' + '|' + str(s_i) + '>'
+
+
+
+print('\nProbabilities after measurement:')
 for i in range(2**np.sum(M)):
 	s_i = ("{:0%db}"%np.sum(M)).format(i)[::-1]
 	if P[i] != 0: 
-		printf('P('+str(s_i)+') = '),
-		print(P[i])	
+		printf('\nP(|' + str(s_i) + '>) = '),
+		print(P[i])
+		printf('|psi> = '),
+		print(Amp[i])
+		
 
 os.system("python qasm2tex.py QS.qasm > circ.tex")
 os.system("latex circ.tex >/dev/null 2>&1")
