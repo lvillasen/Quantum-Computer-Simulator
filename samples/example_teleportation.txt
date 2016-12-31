@@ -1,0 +1,5 @@
+init q[0];
+h q[1];
+cx q[1:0], q[2];
+h q[0];
+measure q[0:1];
