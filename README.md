@@ -54,10 +54,10 @@ is
 
 	Probabilities after measurement:
 
-	P(|0>) = 0.5
+	P(0) = 0.5
 	|psi> = (1.000)|000>
 
-	P(|1>) = 0.5
+	P(1) = 0.5
 	|psi> = (-1.000)|111>
 
 	If latex is installed correctly then figure circ.ps was created
