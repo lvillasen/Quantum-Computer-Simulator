@@ -501,7 +501,7 @@ print('\nProbabilities after measurement:')
 for i in range(2**np.sum(M)):
 	s_i = ("{:0%db}"%np.sum(M)).format(i)[::-1]
 	if P[i] != 0: 
-		printf('\nP(|' + str(s_i) + '>) = '),
+		printf('\nP(' + str(s_i) + ') = '),
 		print(P[i])
 		printf('|psi> = '),
 		print(Amp[i])
