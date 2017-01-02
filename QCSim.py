@@ -5,7 +5,7 @@
 # 12/18/2016 added compact notation to expand gates applied to sequences of qubits 
 # 12/26/2016 added init command to initialize qubits 
 # 12/28/2016 added  qasm2tex.py code from I. Chuang to plot circuit (https://www.media.mit.edu/quanta/qasm2circ/)
-
+# 1/1/2017 added more gates and more examples
 # Usage
 # python QCSim.py samples/example_Bell.txt
 from __future__ import print_function
@@ -25,7 +25,7 @@ def clear_bit(value, bit):
     return value & ~(1<<bit)
 
 def print_state(g,n_qbits,verbose,A,B,C):
-	if g != 'cx': print('Gate',g,'on qubit', qbit), 
+	if g != 'cx' and g != 'sk' and g != 'csk': print('Gate',g,'on qubit', qbit), 
 	if verbose == 1:
 		printf('  resulted in state |psi> = '),
 		k1=0
@@ -47,7 +47,7 @@ def get_qbits(command):
 	before, sep, after = command.rpartition(";")
 	before1, sep1, after1 = before.split()[1].rpartition(":")
 	g=before.split( )[0]
-	if g != 'cx':
+	if g != 'cx' and g != 'sk' and g != 'csk' :
 		if sep1 == ':': 
 			a=[int(s) for s in before1.split()[0] if s.isdigit()]
 			if len(a)==1:qbit_i= a[0]
@@ -64,6 +64,22 @@ def get_qbits(command):
 		qbit_c_f = qbit_f
 		qbit_t_i = -1
 		qbit_t_f = -1
+	elif g == 'csk':
+		a=[int(s) for s in before.split()[1] if s.isdigit()]
+		if len(a)==1:qbit_c= a[0]
+		if len(a)==2:qbit_c= 10*a[0]+a[1]
+		a=[int(s) for s in before.split()[2] if s.isdigit()]
+		if len(a)==1:qbit_t= a[0]
+		if len(a)==2:qbit_t= 10*a[0]+a[1]
+		a=[int(s) for s in before.split()[3] if s.isdigit()]
+		k=0
+		for i in range(len(a)): k += a[i]*10**(len(a)-i-1)
+		qbit_c_i = qbit_c
+		qbit_c_f = qbit_t
+		qbit_t_i = k
+		qbit_t_f = -1
+
+
 	else:
 		if sep1 == ':': 
 			a=[int(s) for s in before1.split()[0] if s.isdigit()]
@@ -190,6 +206,21 @@ def Tdg(n_qbits,qbit,A,B):
 				B[j]+=1/np.sqrt(2)*(1-1j)*A[j]
 	return B
 
+def Sk(n_qbits,qbit,k,A,B):
+	B = [0 for i in range(2**n_qbits)]
+	w = np.exp(np.pi*1j/k)
+	for j in range(2**n_qbits):
+		if A[j] != 0:
+			bit_parity=(j>>qbit)%2
+			if bit_parity == 0:
+				B[j]+=A[j]
+			if bit_parity == 1:
+				B[j]+=w*A[j]
+	print('Gate sk on qubit', qbit,' with k =',k),	
+	return B
+
+
+
 def CX(n_qbits,qbit_c,qbit_t,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
@@ -206,6 +237,25 @@ def CX(n_qbits,qbit_c,qbit_t,A,B):
 	print('Gate cx on control qubit', qbit_c,' and target qubit',qbit_t),	
 	return B
 
+def CSk(n_qbits,qbit_c,qbit_t,k,A,B):
+	B = [0 for i in range(2**n_qbits)]
+	w = np.exp(np.pi*1j/k)
+	for j in range(2**n_qbits):
+		if A[j] != 0:
+			bit_parity_c=(j>>qbit_c)%2
+			bit_parity_t=(j>>qbit_t)%2
+			if bit_parity_c == 0:
+				B[j]+=A[j]
+			else:
+				if bit_parity_t == 0:
+					B[j]+=A[j]
+				if bit_parity_t == 1:
+					B[j]+=w*A[j]
+	print('Gate csk on control qubit', qbit_c,' and target qubit',qbit_t,' with k =',k),	
+	return B
+
+
+
 if len(sys.argv) > 1:
 	file=sys.argv[1]
 f = open(file,"r") #opens file with QS program
@@ -217,9 +267,11 @@ q_i=-2;q_f=-2
 verbose = 0
 for i in range(len(List)):
 	command=List[i]
-	before, sep, after = command.rpartition(";")
-	before1, sep1, after1 = before.split()[1].rpartition(":")
-	g=before.split( )[0]
+	before, sep, after = command.rpartition(";")	
+	if before.split() != []:
+		before1, sep1, after1 = before.split()[1].rpartition(":")
+		g=before.split( )[0]
+	else: g = ''
 	if g == 'init' or g =='id' or g=='h' or g=='x' or g=='y' or g=='z' or g=='s' or g=='sdg' or g=='t' or g=='tdg' or g=='measure' or g == 'verbose':
 		qbit_i,qbit_f,q,q = get_qbits(command)
 		n_qbits=max(n_qbits, qbit_i+1)
@@ -235,13 +287,26 @@ for i in range(len(List)):
 		n_qbits=max(n_qbits, qbit_t_f+1)
 
 print('\nNumber of qubits: ',n_qbits)
+
 os.system("echo '# Quantum score'  > QS.qasm")
+
 Sd="\'"+str('{S}^{\\dagger}')+"\'"
 cmd = 'echo "\t 	def	Sd,0,%s"  >> QS.qasm'%(Sd)
 os.system(cmd)
+
 Td="\'"+str('{T}^{\\dagger}')+"\'"
 cmd = 'echo "\t 	def	Td,0,%s"  >> QS.qasm'%(Td)
 os.system(cmd)
+
+sk="\'"+str('Sk')+"\'"
+cmd = 'echo "\t 	def	Sk,0,%s"  >> QS.qasm'%(sk)
+os.system(cmd)
+
+csk="\'"+str('CSk')+"\'"
+cmd = 'echo "\t 	def	CSk,1,%s"  >> QS.qasm'%(csk)
+os.system(cmd)
+
+
 for qbit in range(n_qbits):
 	if qbit >= q_i and qbit <= q_f:
 		cmd = 'echo "\t	qubit Q%s"  >> QS.qasm'%(qbit)
@@ -285,10 +350,13 @@ print
 for i in range(len(List)):
 	command=List[i]
 	before, sep, after = List[i].rpartition(";")
-	before1, sep1, after1 = before.split()[1].rpartition(":")
+	if before.split() != []:
+		before1, sep1, after1 = before.split()[1].rpartition(":")
+		g=before.split( )[0]
+	else: g = ''
 ############ 1-qubit gates
 ################### gate id
-	g = before.split( )[0]
+
 	if g=='id' or g=='h' or g=='x' or g=='y' or g=='z' or g=='s' or g=='sdg' or g=='t' or g=='tdg' or g=='measure':
 		qbit_i,qbit_f,q,q = get_qbits(command)
 		if g =='id':
@@ -421,6 +489,23 @@ for i in range(len(List)):
 					cmd = "echo  '\t	Td Q%s'  >> QS.qasm"%(qbit)
 					os.system(cmd)
 
+################### gate sk
+	if g =='sk':
+		qbit_i,qbit_f,k,k = get_qbits(command)
+		if qbit_f >= qbit_i:
+			for qbit in range(qbit_i,qbit_f+1):
+				B = Sk(n_qbits,qbit,k,A,B)	
+				A,C = print_state(g,n_qbits,verbose,A,B,C)
+				cmd = "echo  '\t	Sk Q%s'  >> QS.qasm"%(qbit)
+				os.system(cmd)	
+		elif qbit_f < qbit_i:
+			for qbit in range(qbit_i,qbit_f-1,-1):
+				B = Sk(n_qbits,qbit,k,A,B)
+				A,C = print_state(g,n_qbits,verbose,A,B,C)
+				cmd = "echo  '\t	Sk Q%s'  >> QS.qasm"%(qbit)
+				os.system(cmd)	
+
+
 ############ 2-qubit gates
 ################### gate cx
 	if g == 'cx':
@@ -453,6 +538,15 @@ for i in range(len(List)):
 				A,C = print_state(g,n_qbits,verbose,A,B,C)
 				cmd = "echo  '\t	cnot Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
 				os.system(cmd)
+
+################### gate csk
+	if g == 'csk':
+		qbit_c,qbit_t,k,k1 = get_qbits(command)
+		B = CSk(n_qbits,qbit_c,qbit_t,k,A,B)	
+		A,C = print_state(g,n_qbits,verbose,A,B,C)
+		cmd = "echo  '\t	CSk Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
+		os.system(cmd)	
+
 
 ################### measure
 	if g == 'measure':
@@ -497,12 +591,17 @@ for i in range(2**n_qbits):
 
 
 
-print('\nProbabilities after measurement:')
+if  np.sum(M) >0:
+	print('\nProbabilities after measurement:')
+else:
+	print('\nFinal state:')
+
 for i in range(2**np.sum(M)):
 	s_i = ("{:0%db}"%np.sum(M)).format(i)[::-1]
-	if P[i] != 0: 
-		printf('\nP(' + str(s_i) + ') = '),
-		print(P[i])
+	if P[i] != 0:
+		if  np.sum(M) >0:
+			printf('\nP(' + str(s_i) + ') = '),
+			print(P[i])
 		printf('|psi> = '),
 		print(Amp[i])
 		
