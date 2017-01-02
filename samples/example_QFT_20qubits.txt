@@ -1,3 +1,6 @@
+Code generated automatically with the QFT.sh bash script
+Usage  bash QFT.sh > example_QFT.txt
+
 h q[0:19];
 
 h q[0];
