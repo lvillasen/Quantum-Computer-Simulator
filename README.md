@@ -121,7 +121,7 @@ is
 
 	If latex is installed correctly then figure circ.ps was created
 
-If we add verbose mode
+If we add verbose mode to this example
 
 	verbose 1;
 	h q[0];
