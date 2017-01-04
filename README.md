@@ -58,6 +58,8 @@ The commands implemented are the following:
 *	verbose 0(1); verbose mode off(on)
 
 
+A bash script is also provided to authomatically generate QFT programs for any number of qubits
+
 The Python code implements an automatic extension of the range of qubits in commands, for instance
 	
 	h q[0:4];
