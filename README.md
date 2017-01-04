@@ -68,18 +68,17 @@ is equivalent to
 	h q[1];
 	h q[2];
 	h q[3];
+	h q[4];
 
 and 
 
-	cx q[1:3], q[4];
+	cx q[3:1], q[4];
 
 is equivalent to
 
-	cx q[1], q[4];
-
-	cx q[2], q[4];
-
 	cx q[3], q[4];
+	cx q[2], q[4];
+	cx q[1], q[4];
 
 
 The initial state is
@@ -94,36 +93,29 @@ The output of
 
 is
 
-	Number of qbits:  3
-	Initial state: |psi> = 1|000>
-	Gate h on qbit 0
-	resulted in state |psi> = 0.707106781187|000> + 0.707106781187|100>
-	Gate h on qbit 1
-	resulted in state |psi> = 0.5|000> + 0.5|100> + 0.5|010> + 0.5|110>
-	Gate x on qbit 2
-	resulted in state |psi> = 0.5|001> + 0.5|101> + 0.5|011> + 0.5|111> 
-	Gate cx on control qbit = 1  and target qbit = 2
-	resulted in state |psi> = 0.5|010> + 0.5|110> + 0.5|001> + 0.5|101> 
-	Gate cx on control qbit = 0  and target qbit = 2
-	resulted in state |psi> = 0.5|100> + 0.5|010> + 0.5|001> + 0.5|111> 
-	Gate h on qbit 0
-	resulted in state |psi> = 0.353553390593|000> - 0.353553390593|100> +
-	0.353553390593|010> + 0.353553390593|110> + 0.353553390593|001> +
-	0.353553390593|101> + 0.353553390593|011> - 0.353553390593|111>
-	Gate h on qbit 1
-	resulted in state |psi> = 0.5|000> - 0.5|110> + 0.5|001> + 0.5|111> 
-	Gate h on qbit 2
-	resulted in state |psi> = 0.707106781187|000> - 0.707106781187|111> 
-	Measure qbit 0
-	Measure qbit 1
-	Measure qbit 2
-	Probabilities after measurement:
-	P(000) = 0.5
-	P(111) = 0.5
-	
-	If latex is installed figure circ.ps was created
+	Number of qubits:  3
+	Initial state: |psi> = (1.000)|000> 
+	Gate h on qubit 0
+	Gate h on qubit 1
+	Gate x on qubit 2
+	Gate cx on control qubit 1  and target qubit 2
+	Gate cx on control qubit 0  and target qubit 2
+	Gate h on qubit 0
+	Gate h on qubit 1
+	Gate h on qubit 2
+	Measure qubit 0
 
-This example
+	Probabilities after measurement:
+
+	P(0) = 0.5
+	|psi> = (1.000)|000>
+	
+	P(1) = 0.5
+	|psi> = (-1.000)|111>
+
+	If latex is installed correctly then figure circ.ps was created
+
+If we add verbose mode
 
 	verbose 1;
 	h q[0];
@@ -137,8 +129,40 @@ This example
 	measure q[0];
 	measure q[1];
 	measure q[2];
+	
+The output is
 
-can also be written as
+	Number of qubits:  3
+	Initial state: |psi> = (1.000)|000> 
+	Gate h on qubit 0
+	  resulted in state |psi> = (0.707)|000> + (0.707)|100> 
+	Gate h on qubit 1
+	  resulted in state |psi> = (0.500)|000> + (0.500)|100> + (0.500)|010> + (0.500)|110> 
+	Gate x on qubit 2
+	  resulted in state |psi> = (0.500)|001> + (0.500)|101> + (0.500)|011> + (0.500)|111> 
+	Gate cx on control qubit 1  and target qubit 2
+	  resulted in state |psi> = (0.500)|010> + (0.500)|110> + (0.500)|001> + (0.500)|101> 
+	Gate cx on control qubit 0  and target qubit 2
+	  resulted in state |psi> = (0.500)|100> + (0.500)|010> + (0.500)|001> + (0.500)|111> 
+	Gate h on qubit 0
+	  resulted in state |psi> = (0.354)|000> + (-0.354)|100> + (0.354)|010> + (0.354)|110> + (0.354)|001> + (0.354)|101> + 		(0.354)|011> + (-0.354)|111> 
+	Gate h on qubit 1
+	  resulted in state |psi> = (0.500)|000> + (-0.500)|110> + (0.500)|001> + (0.500)|111> 
+	Gate h on qubit 2
+	  resulted in state |psi> = (0.707)|000> + (-0.707)|111> 
+	Measure qubit 0
+
+	Probabilities after measurement:
+
+	P(0) = 0.5
+	|psi> = (1.000)|000>
+
+	P(1) = 0.5
+	|psi> = (-1.000)|111>
+
+	If latex is installed correctly then figure circ.ps was created
+
+This example can also be written as
 
 	verbose 1;
 	h q[0:1];
