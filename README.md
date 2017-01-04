@@ -132,7 +132,7 @@ If we add verbose mode
 	measure q[1];
 	measure q[2];
 	
-The output is
+the output becomes
 
 	Number of qubits:  3
 	Initial state: |psi> = (1.000)|000> 
