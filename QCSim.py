@@ -392,23 +392,14 @@ for i in range(len(List)):
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	h Q%s'  >> QS.qasm"%(qbit)
 					subprocess.call(cmd, shell=True)					
-					'''
-					for m in range(n_qbits):
-						if m != qbit: 
-							cmd = "echo  '\t	nop Q%s'  >> QS.qasm"%(m)
-							subprocess.call(cmd, shell=True)
-				'''
+					
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = H(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	h Q%s'  >> QS.qasm"%(qbit)
 					subprocess.call(cmd, shell=True)
-					for m in range(n_qbits):
-						if m != qbit: 
-							cmd = "echo  '\t	nop Q%s'  >> QS.qasm"%(m)
-							subprocess.call(cmd, shell=True)
-					
+				
 
 ################### gate x			
 		if g=='x':
