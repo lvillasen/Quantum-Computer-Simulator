@@ -29,7 +29,7 @@ in a few seconds on a typical laptop
 
 The commands implemented are the following:
 
-	idn q[i]; identity gate applied to qubit i
+*	idn q[i]; identity gate applied to qubit i
 
 	h q[i]; Hadamard gate H applied to qubit i
 
