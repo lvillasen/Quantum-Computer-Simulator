@@ -29,7 +29,9 @@ in a few seconds on a typical laptop
 
 The commands implemented are the following:
 
-*	idn q[i]; identity gate applied to qubit i
+*	init q[i]; initializes qubit i to a random superposition
+
+*	id q[i]; identity gate applied to qubit i
 
 *	h q[i]; Hadamard gate H applied to qubit i
 
@@ -58,7 +60,9 @@ The commands implemented are the following:
 *	verbose 0(1); verbose mode off(on)
 
 
-A bash script is also provided to authomatically generate QFT programs for any number of qubits
+Comments can be merged with code after the ; terminator or in new lines
+
+A bash script is provided to automatically generate quantum Fourier transform (QFT) programs for any number of qubits
 
 The Python code implements an automatic extension of the range of qubits in commands, for instance
 	
