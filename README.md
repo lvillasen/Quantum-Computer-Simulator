@@ -49,7 +49,7 @@ The commands implemented are the following:
 
 *	tdg q[i]; Hermitian conjugate of the T phase shift applied to qubit i
 
-*	sk q[i]; S(pi/k) phase shift applied to qubit i with a phase shift of pi/k where k is any integer
+*	sk q[i], k; S(pi/k) phase shift applied to qubit i with a phase shift of pi/k where k is any integer
 
 *	cx q[i], q[j]; CNOT gate applied to control qubit i and target qubit j
 
