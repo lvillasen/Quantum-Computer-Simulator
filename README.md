@@ -31,31 +31,31 @@ The commands implemented are the following:
 
 *	idn q[i]; identity gate applied to qubit i
 
-	h q[i]; Hadamard gate H applied to qubit i
+*	h q[i]; Hadamard gate H applied to qubit i
 
-	x q[i]; X Pauli gate applied to qubit i
+*	x q[i]; X Pauli gate applied to qubit i
 
-	y q[i]; Y Pauli gate applied to qubit i
+*	y q[i]; Y Pauli gate applied to qubit i
 
-	z q[i]; Z Pauli gate applied to qubit i
+*	z q[i]; Z Pauli gate applied to qubit i
 
-	s q[i]; S phase shift applied to qubit i with a phase shift of \pi
+*	s q[i]; S phase shift applied to qubit i with a phase shift of \pi
 
-	sdag q[i]; Hermitian conjugate of the S phase shift applied to qubit i
+*	sdag q[i]; Hermitian conjugate of the S phase shift applied to qubit i
 
-	t q[i]; T phase shift applied to qubit i with a phase shift of $\pi$/2
+*	t q[i]; T phase shift applied to qubit i with a phase shift of $\pi$/2
 
-	tdag q[i]; Hermitian conjugate of the T phase shift applied to qubit i
+*	tdag q[i]; Hermitian conjugate of the T phase shift applied to qubit i
 
-	sk q[i]; S(\pi/k) phase shift applied to qubit i with a phase shift of \pi/k where k is any integer
+*	sk q[i]; S(pi/k) phase shift applied to qubit i with a phase shift of pi/k where k is any integer
 
-	cx q[i], q[j]; CNOT gate applied to control qubit i and target qubit j
+*	cx q[i], q[j]; CNOT gate applied to control qubit i and target qubit j
 
-	csk q[i], q[j], k; controlled S(\pi/k) phase shift applied to control qubit i and target qubit j with k integer
+*	csk q[i], q[j], k; controlled S(pi/k) phase shift applied to control qubit i and target qubit j with k integer
 
-	measure q[i]; measure state of qubit i in the standard basis
+*	measure q[i]; measure state of qubit i in the standard basis
 
-	verbose 0(1); verbose mode off(on)
+*	verbose 0(1); verbose mode off(on)
 
 
 The Python code implements an automatic extension of the range of qubits in commands, for instance
