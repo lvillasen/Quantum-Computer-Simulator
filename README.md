@@ -39,11 +39,11 @@ The commands implemented are the following:
 
 *	z q[i]; Z Pauli gate applied to qubit i
 
-*	s q[i]; S phase shift applied to qubit i with a phase shift of \pi
+*	s q[i]; S phase shift applied to qubit i with a phase shift of pi
 
 *	sdag q[i]; Hermitian conjugate of the S phase shift applied to qubit i
 
-*	t q[i]; T phase shift applied to qubit i with a phase shift of $\pi$/2
+*	t q[i]; T phase shift applied to qubit i with a phase shift of pi/2
 
 *	tdag q[i]; Hermitian conjugate of the T phase shift applied to qubit i
 
