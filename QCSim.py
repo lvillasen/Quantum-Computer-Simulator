@@ -14,6 +14,7 @@ import sys
 import string
 import os
 import random
+import subprocess
 
 def printf(str, *args):
     print(str % args, end='')
@@ -220,7 +221,6 @@ def Sk(n_qbits,qbit,k,A,B):
 	return B
 
 
-
 def CX(n_qbits,qbit_c,qbit_t,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
@@ -287,33 +287,48 @@ for i in range(len(List)):
 		n_qbits=max(n_qbits, qbit_t_f+1)
 
 print('\nNumber of qubits: ',n_qbits)
-
-os.system("echo '# Quantum score'  > QS.qasm")
+cmd = 'echo "# Quantum score"  > QS.qasm'
+subprocess.call(cmd, shell=True)
 
 Sd="\'"+str('{S}^{\\dagger}')+"\'"
 cmd = 'echo "\t 	def	Sd,0,%s"  >> QS.qasm'%(Sd)
-os.system(cmd)
+subprocess.call(cmd, shell=True)
 
 Td="\'"+str('{T}^{\\dagger}')+"\'"
 cmd = 'echo "\t 	def	Td,0,%s"  >> QS.qasm'%(Td)
-os.system(cmd)
+subprocess.call(cmd, shell=True)
 
-sk="\'"+str('Sk')+"\'"
-cmd = 'echo "\t 	def	Sk,0,%s"  >> QS.qasm'%(sk)
-os.system(cmd)
+sk = "\'" + str('S_{\pi/2}') + "\'"
+cmd = 'echo "\t 	def	Sk1,0,%s"  >> QS.qasm'%(sk)
+subprocess.call(cmd, shell=True)
 
-csk="\'"+str('CSk')+"\'"
-cmd = 'echo "\t 	def	CSk,1,%s"  >> QS.qasm'%(csk)
-os.system(cmd)
+for i in range(2,n_qbits):
+	s = 'S_{\pi/2^{%d}}'%(i)
+	sk = "\'" + s + "\'" 
+	cmd = 'echo "\t 	def	Sk%s,0,%s"  >> QS.qasm'%(str(i),sk)
+	subprocess.call(cmd, shell=True)
+
+
+csk = "\'" + str('S_{\pi/2}') + "\'"
+cmd = 'echo "\t 	def	CSk1,1,%s"  >> QS.qasm'%(csk)
+subprocess.call(cmd, shell=True)
+
+for i in range(2,n_qbits):
+	s = 'S_{\pi/2^{%d}}'%(i)
+	csk = "\'" + s + "\'" 
+	cmd = 'echo "\t 	def	CSk%s,1,%s"  >> QS.qasm'%(str(i),csk)
+	subprocess.call(cmd, shell=True)
+
 
 
 for qbit in range(n_qbits):
 	if qbit >= q_i and qbit <= q_f:
 		cmd = 'echo "\t	qubit Q%s"  >> QS.qasm'%(qbit)
-		os.system(cmd)
+		subprocess.call(cmd, shell=True)
 	else:
 		cmd = 'echo "\t	qubit Q%s,0"  >> QS.qasm'%(qbit)
-		os.system(cmd)
+		subprocess.call(cmd, shell=True)
+
 
 
 A = [0 for i in range(2**n_qbits)]
@@ -376,13 +391,24 @@ for i in range(len(List)):
 					B = H(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	h Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)		
+					subprocess.call(cmd, shell=True)					
+					'''
+					for m in range(n_qbits):
+						if m != qbit: 
+							cmd = "echo  '\t	nop Q%s'  >> QS.qasm"%(m)
+							subprocess.call(cmd, shell=True)
+				'''
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = H(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	h Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)	
+					subprocess.call(cmd, shell=True)
+					for m in range(n_qbits):
+						if m != qbit: 
+							cmd = "echo  '\t	nop Q%s'  >> QS.qasm"%(m)
+							subprocess.call(cmd, shell=True)
+					
 
 ################### gate x			
 		if g=='x':
@@ -391,13 +417,13 @@ for i in range(len(List)):
 					B = X(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	X Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)	
+					subprocess.call(cmd, shell=True)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = X(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	X Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)	
+					subprocess.call(cmd, shell=True)	
 
 ################### gate y
 		if g =='y':
@@ -406,13 +432,13 @@ for i in range(len(List)):
 					B = Y(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Y Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)	
+					subprocess.call(cmd, shell=True)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = Y(n_qbits,qbit,A,B)	
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Y Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)	
+					subprocess.call(cmd, shell=True)	
 
 ################### gate z					
 		if g =='z':
@@ -421,13 +447,13 @@ for i in range(len(List)):
 					B = Z(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Z Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)	
+					subprocess.call(cmd, shell=True)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = Z(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Z Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)	
+					subprocess.call(cmd, shell=True)	
 
 ################### gate s
 		if g =='s':
@@ -436,13 +462,13 @@ for i in range(len(List)):
 					B = S(n_qbits,qbit,A,B)	
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	S Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)	
+					subprocess.call(cmd, shell=True)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = S(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	S Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)	
+					subprocess.call(cmd, shell=True)	
 
 ################### gate sdg
 		if g =='sdg':
@@ -451,13 +477,13 @@ for i in range(len(List)):
 					B = Sdg(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Sd Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)	
+					subprocess.call(cmd, shell=True)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = Sdg(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Sd Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)	
+					subprocess.call(cmd, shell=True)	
 
 ################### gate t
 		if g =='t':
@@ -466,13 +492,13 @@ for i in range(len(List)):
 					B = T(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	T Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)	
+					subprocess.call(cmd, shell=True)	
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = T(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	T Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)	
+					subprocess.call(cmd, shell=True)	
 
 ################### gate tdg
 		if g =='tdg':
@@ -481,29 +507,31 @@ for i in range(len(List)):
 					B = Tdg(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Td Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)
+					subprocess.call(cmd, shell=True)
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = Tdg(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	Td Q%s'  >> QS.qasm"%(qbit)
-					os.system(cmd)
+					subprocess.call(cmd, shell=True)
 
 ################### gate sk
 	if g =='sk':
 		qbit_i,qbit_f,k,k = get_qbits(command)
+		klog=int(np.log2(k))
+		cs='Sk'+str(klog)
 		if qbit_f >= qbit_i:
 			for qbit in range(qbit_i,qbit_f+1):
 				B = Sk(n_qbits,qbit,k,A,B)	
 				A,C = print_state(g,n_qbits,verbose,A,B,C)
-				cmd = "echo  '\t	Sk Q%s'  >> QS.qasm"%(qbit)
-				os.system(cmd)	
+				cmd = "echo  '\t	%s Q%s'  >> QS.qasm"%(cs,qbit)
+				subprocess.call(cmd, shell=True)
 		elif qbit_f < qbit_i:
 			for qbit in range(qbit_i,qbit_f-1,-1):
 				B = Sk(n_qbits,qbit,k,A,B)
 				A,C = print_state(g,n_qbits,verbose,A,B,C)
-				cmd = "echo  '\t	Sk Q%s'  >> QS.qasm"%(qbit)
-				os.system(cmd)	
+				cmd = "echo  '\t	%s Q%s'  >> QS.qasm"%(cs,qbit)
+				subprocess.call(cmd, shell=True)
 
 
 ############ 2-qubit gates
@@ -516,36 +544,44 @@ for i in range(len(List)):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)
 				A,C = print_state(g,n_qbits,verbose,A,B,C)
 				cmd = "echo  '\t	cnot Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
-				os.system(cmd)
+				subprocess.call(cmd, shell=True)
 		elif qbit_c_f < qbit_c_i and qbit_t_i == qbit_t_f: # qbit_c_f < qbit_c_i qbit_t_i == qbit_t_f
 			qbit_t = qbit_t_i
 			for qbit_c in range(qbit_c_i,qbit_c_f-1,-1):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)
 				A,C = print_state(g,n_qbits,verbose,A,B,C)
 				cmd = "echo  '\t	cnot Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
-				os.system(cmd)
+				subprocess.call(cmd, shell=True)
 		elif qbit_c_f == qbit_c_i and qbit_t_f >= qbit_t_i: # qbit_c_f == qbit_c_i and qbit_t_f > qbit_t_i
 			qbit_c = qbit_c_i
 			for qbit_t in range(qbit_t_i,qbit_t_f+1):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)
 				A,C = print_state(g,n_qbits,verbose,A,B,C)
 				cmd = "echo  '\t	cnot Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
-				os.system(cmd)
+				subprocess.call(cmd, shell=True)
 		elif qbit_c_f == qbit_c_i and qbit_t_i >= qbit_t_f: # qbit_c_f == qbit_c_i and qbit_t_i < qbit_t_f
 			qbit_c = qbit_c_i
 			for qbit_t in range(qbit_t_i,qbit_t_f-1,-1):
 				B = CX(n_qbits,qbit_c,qbit_t,A,B)				
 				A,C = print_state(g,n_qbits,verbose,A,B,C)
 				cmd = "echo  '\t	cnot Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
-				os.system(cmd)
+				subprocess.call(cmd, shell=True)
 
 ################### gate csk
 	if g == 'csk':
 		qbit_c,qbit_t,k,k1 = get_qbits(command)
+		klog=int(np.log2(k))
+		cs='CSk'+str(klog)
 		B = CSk(n_qbits,qbit_c,qbit_t,k,A,B)	
 		A,C = print_state(g,n_qbits,verbose,A,B,C)
-		cmd = "echo  '\t	CSk Q%s,Q%s'  >> QS.qasm"%(qbit_c,qbit_t)
-		os.system(cmd)	
+		cmd = "echo  '\t	%s Q%s,Q%s'  >> QS.qasm"%(cs,qbit_c,qbit_t)
+		subprocess.call(cmd, shell=True)
+		'''for m in range(n_qbits):
+			if m != qbit_t: 
+				cmd = "echo  '\t	nop Q%s'  >> QS.qasm"%(m)
+				subprocess.call(cmd, shell=True)
+'''
+
 
 
 ################### measure
@@ -555,13 +591,13 @@ for i in range(len(List)):
 				M[qbit] = 1
 				print('Measure qubit', qbit)
 				cmd = "echo  '\t 	measure Q%s'  >> QS.qasm"%(qbit)
-				os.system(cmd)	 
+				subprocess.call(cmd, shell=True)	 
 		elif qbit_f < qbit_i:
 			for qbit in range(qbit_i,qbit_f-1,-1):
 				M[qbit] = 1
 				print('Measure qubit', qbit)
 				cmd = "echo  '\t	measure Q%s'  >> QS.qasm"%(qbit)
-				os.system(cmd)	 
+				subprocess.call(cmd, shell=True) 
 
 P=[0 for i in range(2**np.sum(M))]
 Amp=['' for i in range(2**np.sum(M))]
