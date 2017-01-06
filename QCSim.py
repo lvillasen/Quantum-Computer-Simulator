@@ -12,9 +12,10 @@ from __future__ import print_function
 import numpy as np
 import sys
 import string
-import os
 import random
 import subprocess
+import os
+
 
 def printf(str, *args):
     print(str % args, end='')
@@ -46,18 +47,20 @@ def print_state(g,n_qbits,verbose,A,B,C):
 
 def get_qbits(command):
 	before, sep, after = command.rpartition(";")
-	before1, sep1, after1 = before.split()[1].rpartition(":")
+
+	#before1, sep1, after1 = before.split()[1].rpartition(":")
 	g=before.split( )[0]
 	if g != 'cx' and g != 'sk' and g != 'csk' :
+		before1, sep1, after1 = before.rpartition(":")
 		if sep1 == ':': 
-			a=[int(s) for s in before1.split()[0] if s.isdigit()]
+			a=[int(s) for s in before1 if s.isdigit()]
 			if len(a)==1:qbit_i= a[0]
 			if len(a)==2:qbit_i= 10*a[0]+a[1]
-			a=[int(s) for s in after1.split()[0] if s.isdigit()]
+			a=[int(s) for s in after1 if s.isdigit()]
 			if len(a)==1:qbit_f= a[0]
 			if len(a)==2:qbit_f= 10*a[0]+a[1]
 		else:
-			a=[int(s) for s in before.split()[1] if s.isdigit()]
+			a=[int(s) for s in before if s.isdigit()]
 			if len(a)==1:qbit_i= a[0]
 			if len(a)==2:qbit_i= 10*a[0]+a[1]
 			qbit_f=qbit_i
@@ -65,14 +68,71 @@ def get_qbits(command):
 		qbit_c_f = qbit_f
 		qbit_t_i = -1
 		qbit_t_f = -1
+	elif g == 'sk':
+		before2, sep2, after2 = before.rpartition(",")
+		before1, sep1, after1 = before2.rpartition(":")
+		if sep1 == ':': 
+			a=[int(s) for s in before1 if s.isdigit()]
+			if len(a)==1:qbit_i= a[0]
+			if len(a)==2:qbit_i= 10*a[0]+a[1]
+			a=[int(s) for s in after1 if s.isdigit()]
+			if len(a)==1:qbit_f= a[0]
+			if len(a)==2:qbit_f= 10*a[0]+a[1]
+		else:
+			a=[int(s) for s in before2 if s.isdigit()]
+			if len(a)==1:qbit_i= a[0]
+			if len(a)==2:qbit_i= 10*a[0]+a[1]
+			qbit_f=qbit_i
+		a=[int(s) for s in after2 if s.isdigit()]
+		k=0
+		for i in range(len(a)): k += a[i]*10**(len(a)-i-1)
+		qbit_c_i = qbit_i
+		qbit_c_f = qbit_f
+		qbit_t_i = k
+		qbit_t_f = -1
+	elif g == 'cx':
+		before2, sep2, after2 = before.rpartition(",")
+		before1, sep1, after1 = before2.rpartition(":")
+		if sep1 == ':': 
+			a=[int(s) for s in before1 if s.isdigit()]
+			if len(a)==1:qbit_c_i= a[0]
+			if len(a)==2:qbit_c_i= 10*a[0]+a[1]
+			a=[int(s) for s in after1 if s.isdigit()]
+			if len(a)==1:qbit_c_f= a[0]
+			if len(a)==2:qbit_c_f= 10*a[0]+a[1]
+		else:
+			a=[int(s) for s in before2 if s.isdigit()]
+			if len(a)==1:qbit_c_i= a[0]
+			if len(a)==2:qbit_c_i= 10*a[0]+a[1]
+			qbit_c_f=qbit_c_i
+		before1, sep1, after1 = after2.rpartition(":")
+		if sep1 == ':': 
+			a=[int(s) for s in before1 if s.isdigit()]
+			if len(a)==1:qbit_t_i= a[0]
+			if len(a)==2:qbit_t_i= 10*a[0]+a[1]
+			a=[int(s) for s in after1 if s.isdigit()]
+			if len(a)==1:qbit_t_f= a[0]
+			if len(a)==2:qbit_t_f= 10*a[0]+a[1]
+		else:
+			a=[int(s) for s in after2 if s.isdigit()]
+			if len(a)==1:qbit= a[0]
+			if len(a)==2:qbit= 10*a[0]+a[1]
+			qbit_t_i=qbit
+			qbit_t_f=qbit_t_i
 	elif g == 'csk':
-		a=[int(s) for s in before.split()[1] if s.isdigit()]
+		before1, sep1, after1 = before.rpartition(":")
+		if sep1 == ':': 
+			sys.exit('The csk gate does not allow expansion of range of qubits')
+		before2, sep2, after2 = before.rpartition(",")
+		before3, sep3, after3 = before2.rpartition(",")
+		print(before)
+		a=[int(s) for s in before3 if s.isdigit()]
 		if len(a)==1:qbit_c= a[0]
 		if len(a)==2:qbit_c= 10*a[0]+a[1]
-		a=[int(s) for s in before.split()[2] if s.isdigit()]
+		a=[int(s) for s in after3 if s.isdigit()]
 		if len(a)==1:qbit_t= a[0]
 		if len(a)==2:qbit_t= 10*a[0]+a[1]
-		a=[int(s) for s in before.split()[3] if s.isdigit()]
+		a=[int(s) for s in after2 if s.isdigit()]
 		k=0
 		for i in range(len(a)): k += a[i]*10**(len(a)-i-1)
 		qbit_c_i = qbit_c
@@ -81,33 +141,7 @@ def get_qbits(command):
 		qbit_t_f = -1
 
 
-	else:
-		if sep1 == ':': 
-			a=[int(s) for s in before1.split()[0] if s.isdigit()]
-			if len(a)==1:qbit_c_i= a[0]
-			if len(a)==2:qbit_c_i= 10*a[0]+a[1]
-			a=[int(s) for s in after1.split()[0] if s.isdigit()]
-			if len(a)==1:qbit_c_f= a[0]
-			if len(a)==2:qbit_c_f= 10*a[0]+a[1]
-		else:
-			a=[int(s) for s in before.split()[1] if s.isdigit()]
-			if len(a)==1:qbit_c_i= a[0]
-			if len(a)==2:qbit_c_i= 10*a[0]+a[1]
-			qbit_c_f=qbit_c_i
-		before2, sep2, after2 = before.split()[2].rpartition(":")
-		if sep2 == ':': 
-			a=[int(s) for s in before2.split()[0] if s.isdigit()]
-			if len(a)==1:qbit_t_i= a[0]
-			if len(a)==2:qbit_t_i= 10*a[0]+a[1]
-			a=[int(s) for s in after2.split()[0] if s.isdigit()]
-			if len(a)==1:qbit_t_f= a[0]
-			if len(a)==2:qbit_t_f= 10*a[0]+a[1]
-		else:
-			a=[int(s) for s in before.split()[2] if s.isdigit()]
-			if len(a)==1:qbit= a[0]
-			if len(a)==2:qbit= 10*a[0]+a[1]
-			qbit_t_i=qbit
-			qbit_t_f=qbit
+	
 	return qbit_c_i,qbit_c_f,qbit_t_i,qbit_t_f
 
 def ID(n_qbits,A,B):
@@ -280,11 +314,22 @@ for i in range(len(List)):
 			q_i=qbit_i
 			q_f=qbit_f	
 		if g == 'verbose':
-			verbose = qbit_i	
+			verbose = qbit_i
+	elif g == 'sk':
+		qbit_i,qbit_f,k,k1 = get_qbits(command)
+		n_qbits=max(n_qbits, qbit_f+1)
+		n_qbits=max(n_qbits, qbit_i+1)	
 	elif g == 'cx':
 		qbit_c_i,qbit_c_f,qbit_t_i,qbit_t_f = get_qbits(command)
+		n_qbits=max(n_qbits, qbit_c_i+1)
 		n_qbits=max(n_qbits, qbit_c_f+1)
+		n_qbits=max(n_qbits, qbit_t_i+1)
 		n_qbits=max(n_qbits, qbit_t_f+1)
+	elif g == 'csk':
+		qbit_c,qbit_t,k,k1 = get_qbits(command)
+		n_qbits=max(n_qbits, qbit_c+1)
+		n_qbits=max(n_qbits, qbit_t+1)
+
 
 print('\nNumber of qubits: ',n_qbits)
 cmd = 'echo "# Quantum score"  > QS.qasm'
@@ -392,14 +437,23 @@ for i in range(len(List)):
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	h Q%s'  >> QS.qasm"%(qbit)
 					subprocess.call(cmd, shell=True)					
-					
+					'''
+					for m in range(n_qbits):
+						if m != qbit: 
+							cmd = "echo  '\t	nop Q%s'  >> QS.qasm"%(m)
+							subprocess.call(cmd, shell=True)
+				'''
 			elif qbit_f < qbit_i:
 				for qbit in range(qbit_i,qbit_f-1,-1):
 					B = H(n_qbits,qbit,A,B)
 					A,C = print_state(g,n_qbits,verbose,A,B,C)
 					cmd = "echo  '\t	h Q%s'  >> QS.qasm"%(qbit)
 					subprocess.call(cmd, shell=True)
-				
+					for m in range(n_qbits):
+						if m != qbit: 
+							cmd = "echo  '\t	nop Q%s'  >> QS.qasm"%(m)
+							subprocess.call(cmd, shell=True)
+					
 
 ################### gate x			
 		if g=='x':
@@ -508,7 +562,7 @@ for i in range(len(List)):
 
 ################### gate sk
 	if g =='sk':
-		qbit_i,qbit_f,k,k = get_qbits(command)
+		qbit_i,qbit_f,k,k1 = get_qbits(command)
 		klog=int(np.log2(k))
 		cs='Sk'+str(klog)
 		if qbit_f >= qbit_i:
@@ -633,9 +687,9 @@ for i in range(2**np.sum(M)):
 		print(Amp[i])
 		
 
-os.system("python qasm2tex.py QS.qasm > circ.tex")
-os.system("latex circ.tex >/dev/null 2>&1")
-os.system("dvips -D2400 -E circ.dvi >/dev/null 2>&1")
+subprocess.call( "python qasm2tex.py QS.qasm > circ.tex",shell=True)
+subprocess.call("latex circ.tex >/dev/null 2>&1",shell=True)
+subprocess.call("dvips -D2400 -E circ.dvi >/dev/null 2>&1",shell=True)
 cmd_exists = lambda x: any(os.access(os.path.join(path, x), os.X_OK) for path in os.environ["PATH"].split(os.pathsep))
 if cmd_exists('latex') == True:
 	print('\nIf latex is installed correctly then figure circ.ps was created\n')
