@@ -59,10 +59,17 @@ The commands implemented are the following:
 
 *	**verbose 0(1);** verbose mode off(on)
 
+*	**circuit 0(1);** circuit plot off(on)
+
+*	**Sign i:j;** flips sign of states with indexes from i to j in the standard basis
+
+
 
 Comments can be merged with code after the ; terminator or in new lines
 
-A bash script is provided to automatically generate quantum Fourier transform (QFT) programs for any number of qubits
+A bash script (QFT.sh) is provided to automatically generate quantum Fourier transform (QFT) and inverse Fourier transform (IQFT) programs for any number of qubits
+
+A bash script (Grover.sh) is also provided to automatically generate Grover search programs for any number of qubits
 
 The Python code implements an automatic extension of the range of qubits in commands, for instance
 	
