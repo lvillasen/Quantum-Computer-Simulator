@@ -2,6 +2,8 @@
 # Bash script to generate QFT examples for any number of qubits
 #Autor: Luis Villaseñor
 #Date: 1/1/2017 
+# Usage: bash samples/QFT.sh > samples/example_IQFT.txt
+# Usage: python QCSim.py samples/example_QFT.txt
 N=8
 echo "h q[0:$((N-1))];";echo
 echo "h q[0];";echo
