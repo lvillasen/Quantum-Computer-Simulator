@@ -1,0 +1,32 @@
+circuit 0 ;
+Number of qubits = 5
+Number of states = 32
+Search index = 21
+Number of optimal Grover iterations = 4
+
+Initial state = |00..00>
+
+h q[0:4];
+State is transformed to fully uniform
+
+Iteration no: 1
+Sign 21;
+h q[0:4];
+Sign 0;
+h q[0:4];
+Iteration no: 2
+Sign 21;
+h q[0:4];
+Sign 0;
+h q[0:4];
+Iteration no: 3
+Sign 21;
+h q[0:4];
+Sign 0;
+h q[0:4];
+Iteration no: 4
+Sign 21;
+h q[0:4];
+Sign 0;
+h q[0:4];
+measure 0:4 ;
