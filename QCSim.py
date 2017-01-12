@@ -3,9 +3,12 @@
 # lvillasen@gmail.com
 # 12/16/2016 Notation compatible with IBM's Quantum Experience (http://www.research.ibm.com/quantum/)
 # 12/18/2016 added compact notation to expand gates applied to sequences of qubits 
-# 12/26/2016 added init command to initialize qubits 
+# 12/26/2016 added init command to initialize qubits and a teleportation example
 # 12/28/2016 added  qasm2tex.py code from I. Chuang to plot circuit (https://www.media.mit.edu/quanta/qasm2circ/)
 # 1/1/2017 added more gates and more examples
+# 1/3/2017 added QFT
+# 1/8/2017 added IQFT  
+# 1/11/2017 added Sign flip and examples on Grover search algorithm  
 # Usage
 # python QCSim.py samples/example_Bell.txt
 from __future__ import print_function
@@ -27,7 +30,7 @@ def clear_bit(value, bit):
     return value & ~(1<<bit)
 
 def print_state(g,n_qbits,verbose,A,B,C):
-	if g != 'cx' and g != 'sk' and g != 'csk': print('Gate',g,'on qubit', qbit), 
+	if g != 'cx' and g != 'sk' and g != 'csk' and g != 'Sign': print('Gate',g,'on qubit', qbit), 
 	if verbose == 1:
 		printf('  resulted in state |psi> = '),
 		k1=0
@@ -47,10 +50,8 @@ def print_state(g,n_qbits,verbose,A,B,C):
 
 def get_qbits(command):
 	before, sep, after = command.rpartition(";")
-
-	#before1, sep1, after1 = before.split()[1].rpartition(":")
 	g=before.split( )[0]
-	if g != 'cx' and g != 'sk' and g != 'csk' :
+	if g != 'cx' and g != 'sk' and g != 'csk' and g != 'Sign'  :
 		before1, sep1, after1 = before.rpartition(":")
 		if sep1 == ':': 
 			a=[int(s) for s in before1 if s.isdigit()]
@@ -139,12 +140,29 @@ def get_qbits(command):
 		qbit_c_f = qbit_t
 		qbit_t_i = k
 		qbit_t_f = -1
+	elif g == 'Sign': 
+		before2, sep2, after2 = before.rpartition(":")
+		if sep2 == ':':
+			a=[int(s) for s in before2 if s.isdigit()]
+			k=0
+			for i in range(len(a)): k += a[i]*10**(len(a)-i-1)
+			qbit_c_i = k
+			a=[int(s) for s in after2 if s.isdigit()]
+			k1=0
+			for i in range(len(a)): k1 += a[i]*10**(len(a)-i-1)
+			qbit_c_f = k1
+		else:
+			a=[int(s) for s in before if s.isdigit()]
+			k=0
+			for i in range(len(a)): k += a[i]*10**(len(a)-i-1)
+			qbit_c_i = k
+			qbit_c_f = k
 
-
-	
+		qbit_t_i = -1
+		qbit_t_f = -1
 	return qbit_c_i,qbit_c_f,qbit_t_i,qbit_t_f
 
-def ID(n_qbits,A,B):
+def ID(n_qbits,qbit,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
 		if A[j] != 0:
@@ -288,17 +306,25 @@ def CSk(n_qbits,qbit_c,qbit_t,k,A,B):
 	print('Gate csk on control qubit', qbit_c,' and target qubit',qbit_t,' with k =',k),	
 	return B
 
-
+def Sign(n_qbits,index,A,B):
+	B = [0 for i in range(2**n_qbits)]
+	for j in range(2**n_qbits):
+		if j == index:
+			B[j]=-A[j]
+			print('Sign flip on index', j),	
+		else:
+			B[j]=A[j]
+	return B
 
 if len(sys.argv) > 1:
 	file=sys.argv[1]
-f = open(file,"r") #opens file with QS program
+f = open(file,"r") #opens file with QS prSignram
 List = []
 for line in f:
     List.append(line)
 n_qbits =0
 q_i=-2;q_f=-2
-verbose = 0
+verbose = 0; circuit = 1
 for i in range(len(List)):
 	command=List[i]
 	before, sep, after = command.rpartition(";")	
@@ -306,15 +332,19 @@ for i in range(len(List)):
 		before1, sep1, after1 = before.split()[1].rpartition(":")
 		g=before.split( )[0]
 	else: g = ''
-	if g == 'init' or g =='id' or g=='h' or g=='x' or g=='y' or g=='z' or g=='s' or g=='sdg' or g=='t' or g=='tdg' or g=='measure' or g == 'verbose':
+	if g == 'init' or g =='id' or g=='h' or g=='x' or g=='y' or g=='z' or g=='s' or g=='sdg' or g=='t' or g=='tdg' or g=='measure' :
 		qbit_i,qbit_f,q,q = get_qbits(command)
 		n_qbits=max(n_qbits, qbit_i+1)
 		n_qbits=max(n_qbits, qbit_f+1)
 		if g == 'init': 
 			q_i=qbit_i
 			q_f=qbit_f	
+	elif g == 'verbose' or g == 'circuit':
+		qbit_i,qbit_f,q,q = get_qbits(command)
 		if g == 'verbose':
 			verbose = qbit_i
+		if g == 'circuit':
+			circuit = qbit_i
 	elif g == 'sk':
 		qbit_i,qbit_f,k,k1 = get_qbits(command)
 		n_qbits=max(n_qbits, qbit_f+1)
@@ -346,6 +376,11 @@ subprocess.call(cmd, shell=True)
 sk = "\'" + str('S_{\pi/2}') + "\'"
 cmd = 'echo "\t 	def	Sk1,0,%s"  >> QS.qasm'%(sk)
 subprocess.call(cmd, shell=True)
+
+sign = "\'" + str('Sign') + "\'"
+cmd = 'echo "\t 	def	sign,0,%s"  >> QS.qasm'%(sign)
+subprocess.call(cmd, shell=True)
+
 
 for i in range(2,n_qbits):
 	s = 'S_{\pi/2^{%d}}'%(i)
@@ -417,7 +452,7 @@ for i in range(len(List)):
 ############ 1-qubit gates
 ################### gate id
 
-	if g=='id' or g=='h' or g=='x' or g=='y' or g=='z' or g=='s' or g=='sdg' or g=='t' or g=='tdg' or g=='measure':
+	if g  =='id' or g  =='h' or g =='x' or g =='y' or g =='z' or g =='s' or g =='sdg' or g =='t' or g =='tdg' or g =='measure':
 		qbit_i,qbit_f,q,q = get_qbits(command)
 		if g =='id':
 			if qbit_f >= qbit_i:
@@ -563,8 +598,8 @@ for i in range(len(List)):
 ################### gate sk
 	if g =='sk':
 		qbit_i,qbit_f,k,k1 = get_qbits(command)
-		klog=int(np.log2(k))
-		cs='Sk'+str(klog)
+		klSign=int(np.lSign2(k))
+		cs='Sk'+str(klSign)
 		if qbit_f >= qbit_i:
 			for qbit in range(qbit_i,qbit_f+1):
 				B = Sk(n_qbits,qbit,k,A,B)	
@@ -627,6 +662,12 @@ for i in range(len(List)):
 				subprocess.call(cmd, shell=True)
 '''
 
+################### Flip sign
+	if g =='Sign':
+		index_i,index_f,k,k = get_qbits(command)
+		for indx in range(index_i,index_f+1):
+			B = Sign(n_qbits,indx,A,B)	
+			A,C = print_state(g,n_qbits,verbose,A,B,C)	
 
 
 ################### measure
@@ -686,10 +727,10 @@ for i in range(2**np.sum(M)):
 		printf('|psi> = '),
 		print(Amp[i])
 		
-
-subprocess.call( "python qasm2tex.py QS.qasm > circ.tex",shell=True)
-subprocess.call("latex circ.tex >/dev/null 2>&1",shell=True)
-subprocess.call("dvips -D2400 -E circ.dvi >/dev/null 2>&1",shell=True)
-cmd_exists = lambda x: any(os.access(os.path.join(path, x), os.X_OK) for path in os.environ["PATH"].split(os.pathsep))
-if cmd_exists('latex') == True:
-	print('\nIf latex is installed correctly then figure circ.ps was created\n')
+if circuit == 1:
+	subprocess.call( "python qasm2tex.py QS.qasm > circ.tex",shell=True)
+	subprocess.call("latex circ.tex >/dev/null 2>&1",shell=True)
+	subprocess.call("dvips -D2400 -E circ.dvi >/dev/null 2>&1",shell=True)
+	cmd_exists = lambda x: any(os.access(os.path.join(path, x), os.X_OK) for path in os.environ["PATH"].split(os.pathsep))
+	if cmd_exists('latex') == True:
+		print('\nIf latex is installed correctly then figure circ.ps was created\n')
