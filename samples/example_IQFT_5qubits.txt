@@ -1,0 +1,24 @@
+Initial state = |0000..>
+h q[0:1];
+
+IQFT code starts here
+h q[4];
+csk q[4], q[3], -2;
+csk q[4], q[2], -4;
+csk q[4], q[1], -8;
+csk q[4], q[0], -16;
+
+h q[3];
+csk q[3], q[2], -2;
+csk q[3], q[1], -4;
+csk q[3], q[0], -8;
+
+h q[2];
+csk q[2], q[1], -2;
+csk q[2], q[0], -4;
+
+h q[1];
+csk q[1], q[0], -2;
+
+h q[0];
+reverse;
