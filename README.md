@@ -63,6 +63,11 @@ The commands implemented are the following:
 
 *	**Sign i:j;** flips sign of states with indexes from i to j in the standard basis
 
+*	**N&m i,j;** initializes basis state x to m^x mod N
+
+*	**reverse ;** reverses all qubits
+
+
 
 
 Comments can be merged with code after the ; terminator or in new lines
