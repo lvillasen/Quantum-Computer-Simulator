@@ -4,7 +4,7 @@
 #Date: 1/10/2017 
 # Usage: bash samples/IQFT.sh > samples/example_IQFT.txt
 # Usage: python QCSim.py samples/example_IQFT.txt
-n=5
+n=15
 echo "IQFT code starts here"
 
 for i in $(seq $((n-1)) 1); do
