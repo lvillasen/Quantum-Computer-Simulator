@@ -27,7 +27,7 @@ by the resources available on the system used to run these programs. For instanc
 
 in a few seconds on a typical laptop
 
-The commands implemented are the following:
+The gates and commands implemented so far are the following:
 
 *	**init q[i];** initializes qubit i to a random superposition
 
@@ -49,6 +49,10 @@ The commands implemented are the following:
 
 *	**tdg q[i];** Hermitian conjugate of the T phase shift applied to qubit i
 
+*	**QFT q[i:j];** Quantum Fourier transform applied from qbit i to qbit j  
+
+*	**IQFT q[i:j];** Inverse quantum Fourier transform applied from qbit i to qbit j  
+
 *	**sk q[i], k;** S(pi/k) phase shift applied to qubit i with a phase shift of pi/k where k is any integer
 
 *	**cx q[i], q[j];** CNOT gate applied to control qubit i and target qubit j
@@ -63,10 +67,7 @@ The commands implemented are the following:
 
 *	**Sign i:j;** flips sign of states with indexes from i to j in the standard basis
 
-*	**N&m i,j;** initializes basis state x to m^x mod N
-
-*	**reverse ;** reverses all qubits
-
+*	**plot 0(1);** plot off(on)
 
 
 
@@ -76,7 +77,7 @@ A bash script (QFT.sh) is provided to automatically generate quantum Fourier tra
 
 A bash script (Grover.sh) is also provided to automatically generate Grover search programs for any number of qubits
 
-The Python code implements an automatic extension of the range of qubits in commands, for instance
+The code implements an automatic extension of the range of qubits in commands, for instance
 	
 	h q[0:4];
 	
@@ -189,4 +190,7 @@ This example can also be written as
 	h q[0:2];
 	measure q[0:2];
 	
-If the latex command is found, the circuit is created in ps format by using the qasm2tex.py code from I. Chuang (https://www.media.mit.edu/quanta/qasm2circ/)
+If circuit is set to 1 and the latex command is found, the circuit is created in ps format by using the qasm2tex.py code from I. Chuang (https://www.media.mit.edu/quanta/qasm2circ/)
+
+The probabilities of all the basis states are plotted
+if plot is set to 1 
