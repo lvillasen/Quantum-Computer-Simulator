@@ -1,4 +1,6 @@
-## Quantum Computer Simulator
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Quantum Computer Simulator
 # Luis Villasenor
 # lvillasen@gmail.com
 # 12/16/2016 Notation compatible with IBM's Quantum Experience (http://www.research.ibm.com/quantum/)
@@ -6,12 +8,13 @@
 # 12/26/2016 added 'init' command to initialize qubits and a teleportation example
 # 12/28/2016 added  qasm2tex.py code from I. Chuang to plot circuit (https://www.media.mit.edu/quanta/qasm2circ/)
 # 1/1/2017 added more gates and more examples
-# 1/3/2017 added QFT
-# 1/8/2017 added IQFT  
+# 1/3/2017 added QFT and IQFT
 # 1/11/2017 added Sign flip and examples on Grover search algorithm 
 # 1/11/2017 added 'N&m i,j;' command to initialize basis state x to m^x mod N 
 # 1/19/2017 added 'reverse' command to reverse all bits
 # 1/19/2017 added negative phase shifts in 'csk' command
+# 2/3/2017 added plot command
+
 
 
 # Usage
@@ -24,6 +27,8 @@ import random
 import subprocess
 import os
 
+from scipy.fftpack import fft, ifft
+
 
 def printf(str, *args):
     print(str % args, end='')
@@ -35,7 +40,7 @@ def clear_bit(value, bit):
     return value & ~(1<<bit)
 
 def print_state(g,n_qbits,verbose,A,B,C):
-	if g != 'cx' and g != 'sk' and g != 'csk' and g != 'Sign': print('Gate',g,'on qubit', qbit), 
+	if g != 'cx' and g != 'sk' and g != 'csk' and g != 'Sign' and g != 'QFT' and g != 'IQFT': print('Gate',g,'on qubit', qbit), 
 	if verbose == 1:
 		printf('  resulted in state |psi> = '),
 		k1=0
@@ -181,6 +186,22 @@ def get_qbits(command):
 		qbit_t_f = -1
 	return qbit_c_i,qbit_c_f,qbit_t_i,qbit_t_f
 
+
+
+# quantum basis vector |j> is mapped into 1/√N ∑(from k=0 to N−1) exp(2πijk/N)|k⟩
+def DFT_j(type,N,j):
+    List_k = [0 for i in range(N)]
+    for k in range(N):
+    	List_k[k] = np.exp(type*2*np.pi*1j *  j * k/N)
+    return List_k/np.sqrt(N)
+'''
+def DFT(type,list):
+    N = len(list)
+    List = [0 for i in range(N)]
+    for m in range(N):
+        List += list[m]*DFT_j(type,N,m)
+    return List
+'''
 def ID(n_qbits,qbit,A,B):
 	B = [0 for i in range(2**n_qbits)]
 	for j in range(2**n_qbits):
@@ -358,7 +379,7 @@ for i in range(len(List)):
 	if before.split() != []:
 		g=before.split( )[0]		
 	else: g = ''
-	if g =='id' or g=='h' or g=='x' or g=='y' or g=='z' or g=='s' or g=='sdg' or g=='t' or g=='tdg' or g=='measure' :
+	if g =='id' or g=='h' or g=='x' or g=='y' or g=='z' or g=='s' or g=='sdg' or g=='t' or g=='tdg' or g=='measure' or g == 'QFT' or g == 'IQFT' :
 		qbit_i,qbit_f,q,q = get_qbits(command)
 		n_qbits=max(n_qbits, qbit_i+1)
 		n_qbits=max(n_qbits, qbit_f+1)
@@ -460,7 +481,7 @@ elif initial == -2: # init given basis states to random amplitude
 			A[k] = random.uniform(-1,1)+1j*random.uniform(-1,1)
 elif initial == -3: # init to |m**k mod N>
 	for k in range(2**n_qbits):
-		A[k] = float((m**k)%N)
+		A[k] = (m**k)%N
 		#if k%m == 1: A[k] = 1
 
 A_norm=0
@@ -706,9 +727,68 @@ for i in range(len(List)):
 
 ################### Reverse qubits
 	if g == 'reverse':
+		x = ifft(np.array(A))
+		x_norm=0
+		for k in range(2**n_qbits):
+			x_norm+=np.absolute(x[k])**2
+		x=x/np.sqrt(x_norm)
+		A2,C2 = print_state(g,n_qbits,1,A,x.tolist(),C)
+		print((x))
 		B = Reverse(n_qbits,A,B)
-		A,C = print_state(g,n_qbits,verbose,A,B,C)	
-	
+		A,C = print_state(g,n_qbits,verbose,A,B,C)
+
+################### QFT or IQFT
+	if g == 'QFT' or g == 'IQFT':
+		B = [0 for i in range(2**n_qbits)]
+		qbit_i,qbit_f,q,q = get_qbits(command)
+		if g == 'QFT': 
+			print('Starting QFT from qbit',qbit_i,'to qbit',qbit_f)
+			type = 1
+		if g == 'IQFT': 
+			print('Starting IQFT from qbit',qbit_i,'to qbit',qbit_f)
+			type = -1
+		N1 = 2**(qbit_i) 			# qbits below QFT
+		N2 = 2**(qbit_f-qbit_i+1) 	# qbits at QFT
+		N3 = 2**(n_qbits-qbit_f-1) 	# qbits above QFT
+
+		#print('A=',A)
+		for j3 in range(N3):
+			for j2 in range(N2):
+				for j1 in range(N1):
+					'''
+					if qbit_i == 0: 
+						s_j1 =''
+						s_j2 = ("{:0%db}"%(qbit_f-qbit_i+1)).format(j2)
+					else: 
+						s_j1 = ("{:0%db}"%(qbit_i)).format(j1)
+						s_j2 = ("{:0%db}"%(qbit_f-qbit_i+1)).format(j2)
+					j = int(s_j2+s_j1,2)
+					'''
+					j = (j3<<qbit_f+1)+(j2<<qbit_i) + j1
+					#print('j2=',j2,'j1=',j1,'j=',j,'j_t=',j_t)
+					if np.absolute(A[j]) > 0:
+						#print('j2=',j2,'j1=',j1,j)
+						A2 = DFT_j(type,N2,j2)
+						#print('A1=',A1)
+						for jj in range(len(A2)):
+							'''
+							if qbit_i == 0: 
+								s_j1 =''
+								s_j3 = ("{:0%db}"%(qbit_f-qbit_i+1)).format(j3)
+							else: 
+								s_j1 = ("{:0%db}"%(qbit_i)).format(j1)
+								s_j3 = ("{:0%db}"%(qbit_f-qbit_i+1)).format(j3)
+							#j4 = int(s_j3+s_j1,2)
+							'''
+							j4 = (j3<<qbit_f+1) + (jj<<qbit_i) + j1
+							#print('j=',j4,'j3=',j3,'A1(j3)=',A1[j3])
+							#print(j)
+							B[j4] += A2[jj] * A[j]
+		if g == 'QFT': print('Ending QFT ..')
+		elif g == 'IQFT': print('Ending IQFT ..')
+		A,C = print_state(g,n_qbits,verbose,A,B,C)
+
+
 ################### measure
 	if g == 'measure':
 		if qbit_f >= qbit_i:
@@ -744,7 +824,7 @@ for i in range(2**n_qbits):
 			num+=((i>>j)&1)*2**k
 			k+=1
 	s_i = ("{:0%db}"%(n_qbits)).format(i)[::-1]
-	if np.absolute(C[i]) > 0:
+	if np.absolute(C[i]) > 0.0001:
 		if len(Amp[num]) == 0:
 			Amp[num] = Amp[num] + str('({:.3f}'.format(C[i]/np.sqrt(P[num]))) + ')' + '|' + str(s_i) + '>'
 		else:
@@ -783,4 +863,5 @@ if plot == 1:
 	plt.ylabel("Probability",fontsize= 20)
 
 	plt.plot(x,np.absolute(C)*np.absolute(C),'bo',x,np.absolute(C)*np.absolute(C),'r--')
-	plt.show()
+	#plt.show()
+	plt.savefig('plot.pdf')
