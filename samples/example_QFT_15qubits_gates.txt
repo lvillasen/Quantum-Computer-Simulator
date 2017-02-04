@@ -1,0 +1,155 @@
+
+
+circuit 0;
+
+h q[0:3];
+
+
+The code from this line to the end of the file was generated 
+automatically with the QFT.sh bash script
+
+This code is equivalent to the single line
+QFT q[0:14]
+
+Usage:  bash QFT.sh > example_QFT.txt
+
+
+QFT code starts here
+reverse;
+
+h q[0];
+
+csk q[1], q[0], 2;
+h q[1];
+
+csk q[2], q[0], 4;
+csk q[2], q[1], 2;
+h q[2];
+
+csk q[3], q[0], 8;
+csk q[3], q[1], 4;
+csk q[3], q[2], 2;
+h q[3];
+
+csk q[4], q[0], 16;
+csk q[4], q[1], 8;
+csk q[4], q[2], 4;
+csk q[4], q[3], 2;
+h q[4];
+
+csk q[5], q[0], 32;
+csk q[5], q[1], 16;
+csk q[5], q[2], 8;
+csk q[5], q[3], 4;
+csk q[5], q[4], 2;
+h q[5];
+
+csk q[6], q[0], 64;
+csk q[6], q[1], 32;
+csk q[6], q[2], 16;
+csk q[6], q[3], 8;
+csk q[6], q[4], 4;
+csk q[6], q[5], 2;
+h q[6];
+
+csk q[7], q[0], 128;
+csk q[7], q[1], 64;
+csk q[7], q[2], 32;
+csk q[7], q[3], 16;
+csk q[7], q[4], 8;
+csk q[7], q[5], 4;
+csk q[7], q[6], 2;
+h q[7];
+
+csk q[8], q[0], 256;
+csk q[8], q[1], 128;
+csk q[8], q[2], 64;
+csk q[8], q[3], 32;
+csk q[8], q[4], 16;
+csk q[8], q[5], 8;
+csk q[8], q[6], 4;
+csk q[8], q[7], 2;
+h q[8];
+
+csk q[9], q[0], 512;
+csk q[9], q[1], 256;
+csk q[9], q[2], 128;
+csk q[9], q[3], 64;
+csk q[9], q[4], 32;
+csk q[9], q[5], 16;
+csk q[9], q[6], 8;
+csk q[9], q[7], 4;
+csk q[9], q[8], 2;
+h q[9];
+
+csk q[10], q[0], 1024;
+csk q[10], q[1], 512;
+csk q[10], q[2], 256;
+csk q[10], q[3], 128;
+csk q[10], q[4], 64;
+csk q[10], q[5], 32;
+csk q[10], q[6], 16;
+csk q[10], q[7], 8;
+csk q[10], q[8], 4;
+csk q[10], q[9], 2;
+h q[10];
+
+csk q[11], q[0], 2048;
+csk q[11], q[1], 1024;
+csk q[11], q[2], 512;
+csk q[11], q[3], 256;
+csk q[11], q[4], 128;
+csk q[11], q[5], 64;
+csk q[11], q[6], 32;
+csk q[11], q[7], 16;
+csk q[11], q[8], 8;
+csk q[11], q[9], 4;
+csk q[11], q[10], 2;
+h q[11];
+
+csk q[12], q[0], 4096;
+csk q[12], q[1], 2048;
+csk q[12], q[2], 1024;
+csk q[12], q[3], 512;
+csk q[12], q[4], 256;
+csk q[12], q[5], 128;
+csk q[12], q[6], 64;
+csk q[12], q[7], 32;
+csk q[12], q[8], 16;
+csk q[12], q[9], 8;
+csk q[12], q[10], 4;
+csk q[12], q[11], 2;
+h q[12];
+
+csk q[13], q[0], 8192;
+csk q[13], q[1], 4096;
+csk q[13], q[2], 2048;
+csk q[13], q[3], 1024;
+csk q[13], q[4], 512;
+csk q[13], q[5], 256;
+csk q[13], q[6], 128;
+csk q[13], q[7], 64;
+csk q[13], q[8], 32;
+csk q[13], q[9], 16;
+csk q[13], q[10], 8;
+csk q[13], q[11], 4;
+csk q[13], q[12], 2;
+h q[13];
+
+csk q[14], q[0], 16384;
+csk q[14], q[1], 8192;
+csk q[14], q[2], 4096;
+csk q[14], q[3], 2048;
+csk q[14], q[4], 1024;
+csk q[14], q[5], 512;
+csk q[14], q[6], 256;
+csk q[14], q[7], 128;
+csk q[14], q[8], 64;
+csk q[14], q[9], 32;
+csk q[14], q[10], 16;
+csk q[14], q[11], 8;
+csk q[14], q[12], 4;
+csk q[14], q[13], 2;
+h q[14];
+
+QFT code ends here
