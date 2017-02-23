@@ -9,11 +9,11 @@ Compatible with the syntax and output code of IBM's Quantum Experience
 
 #Usage 
 
-	python QCSim.py samples/example_GHZ.txt 
+	python QCSim.py samples/example_YYY.txt 
 
 where:
 
-example_GHZ.txt is one example that illustrates the syntax of this particular quantum simulation language.  
+example_YYY.txt is one of the examples provided.  
 
 For many more examples, the possibility to use a real quantum computer and 
 
@@ -21,11 +21,13 @@ an excellent tutorial, you can visit the website "IBM Quantum Experience"
 
 #Brief description
 
-This is an ideal simulator. The maximum number of qubits it can handle is limited in a natural way 
+This is an ideal simulator. The maximum number of qubits it can handle is limited, in a natural way, 
 
-by the resources available on the system used to run these programs. For instance, 20-qubit programs run
+by the resources available on the system used to run the programs. For instance, the 16-qubit 
 
-in a few seconds on a typical laptop
+Grover-search example provided (201 repetition of the basic search algorithm) takes about a minute to
+
+complete on a typical laptop
 
 The gates and commands implemented so far are the following:
 
@@ -65,15 +67,19 @@ The gates and commands implemented so far are the following:
 
 *	**circuit 0(1);** circuit plot off(on)
 
-*	**Sign i:j;** flips sign of states with indexes from i to j in the standard basis
+*	**Sign i;** flips sign of states with index i in the standard basis
 
 *	**plot 0(1);** plot off(on)
 
+*	**printout 0(1);** plot off(on)
 
+*	**Inverse_P_threshold i;** if printout is set to 1, only the basis states that have probabilities greater than 1/i are printed. This is handy to avoid large printouts when the
+number of qubits is large
 
-Comments can be merged with code after the ; terminator or in new lines
+Lines that do not terminate with a semicolon are treated as comments,
+they can be merged with code after the ; terminator or in new lines
 
-A bash script (QFT.sh) is provided to automatically generate quantum Fourier transform (QFT) and inverse Fourier transform (IQFT) programs for any number of qubits
+In addition to the QFT and IQFT commands, a bash script (QFT.sh) is provided to automatically generate quantum Fourier transform (QFT) and inverse Fourier transform (IQFT) programs based on elementary gates for any number of qubits.
 
 A bash script (Grover.sh) is also provided to automatically generate Grover search programs for any number of qubits
 
@@ -100,96 +106,11 @@ is equivalent to
 	cx q[1], q[4];
 
 
-The initial state is
-
+The initial state is 
 	|000...00>
 
 As usual, qubits are ordered from left to right on the quantum states |psi>
 
-The output of
-
-	python QCSim.py samples/example_GHZ.txt
-
-is
-
-	Number of qubits:  3
-	Initial state: |psi> = (1.000)|000> 
-	Gate h on qubit 0
-	Gate h on qubit 1
-	Gate x on qubit 2
-	Gate cx on control qubit 1  and target qubit 2
-	Gate cx on control qubit 0  and target qubit 2
-	Gate h on qubit 0
-	Gate h on qubit 1
-	Gate h on qubit 2
-	Measure qubit 0
-
-	Probabilities after measurement:
-
-	P(0) = 0.5
-	|psi> = (1.000)|000>
-	
-	P(1) = 0.5
-	|psi> = (-1.000)|111>
-
-	If latex is installed correctly then figure circ.ps was created
-
-If we add verbose mode to this example
-
-	verbose 1;
-	h q[0];
-	h q[1];
-	x q[2];
-	cx q[1], q[2];
-	cx q[0], q[2];
-	h q[0];
-	h q[1];
-	h q[2];
-	measure q[0];
-	measure q[1];
-	measure q[2];
-	
-the output becomes
-
-	Number of qubits:  3
-	Initial state: |psi> = (1.000)|000> 
-	Gate h on qubit 0
-	  resulted in state |psi> = (0.707)|000> + (0.707)|100> 
-	Gate h on qubit 1
-	  resulted in state |psi> = (0.500)|000> + (0.500)|100> + (0.500)|010> + (0.500)|110> 
-	Gate x on qubit 2
-	  resulted in state |psi> = (0.500)|001> + (0.500)|101> + (0.500)|011> + (0.500)|111> 
-	Gate cx on control qubit 1  and target qubit 2
-	  resulted in state |psi> = (0.500)|010> + (0.500)|110> + (0.500)|001> + (0.500)|101> 
-	Gate cx on control qubit 0  and target qubit 2
-	  resulted in state |psi> = (0.500)|100> + (0.500)|010> + (0.500)|001> + (0.500)|111> 
-	Gate h on qubit 0
-	  resulted in state |psi> = (0.354)|000> + (-0.354)|100> + (0.354)|010> + (0.354)|110> + (0.354)|001> + (0.354)|101> + 		(0.354)|011> + (-0.354)|111> 
-	Gate h on qubit 1
-	  resulted in state |psi> = (0.500)|000> + (-0.500)|110> + (0.500)|001> + (0.500)|111> 
-	Gate h on qubit 2
-	  resulted in state |psi> = (0.707)|000> + (-0.707)|111> 
-	Measure qubit 0
-
-	Probabilities after measurement:
-
-	P(0) = 0.5
-	|psi> = (1.000)|000>
-
-	P(1) = 0.5
-	|psi> = (-1.000)|111>
-
-	If latex is installed correctly then figure circ.ps was created
-
-This example can also be written as
-
-	verbose 1;
-	h q[0:1];
-	x q[2];
-	cx q[1:0], q[2];
-	h q[0:2];
-	measure q[0:2];
-	
 If circuit is set to 1 and the latex command is found, the circuit is created in ps format by using the qasm2tex.py code from I. Chuang (https://www.media.mit.edu/quanta/qasm2circ/)
 
 The probabilities of all the basis states are plotted
