@@ -21,13 +21,9 @@ an excellent tutorial, you can visit the website "IBM Quantum Experience"
 
 #Brief description
 
-This is an ideal simulator. The maximum number of qubits it can handle is limited, in a natural way, 
+This is an ideal simulator designed to be fast with speeds comparable to other simulators written in C because the unitary operations are optimized with matrix-free algorithms and the python code is accelerated with Numba. 
 
-by the resources available on the system used to run the programs. For instance, the 16-qubit 
-
-Grover-search example provided (201 repetition of the basic search algorithm) takes about a minute to
-
-complete on a typical laptop
+The maximum number of qubits it can handle is limited, in a natural way, by the resources available on the system used to run the programs. For instance, the 18-qubit Grover-search example provided (402 repetition of the basic search algorithm) runs in a few seconds on a typical laptop.
 
 The gates and commands implemented so far are the following:
 
@@ -64,8 +60,6 @@ The gates and commands implemented so far are the following:
 *	**measure q[i];** measure state of qubit i in the standard basis
 
 *	**verbose 0(1);** verbose mode off(on)
-
-*	**circuit 0(1);** circuit plot off(on)
 
 *	**Sign i;** flips sign of states with index i in the standard basis
 
@@ -111,7 +105,6 @@ The initial state is
 
 As usual, qubits are ordered from left to right on the quantum states |psi>
 
-If circuit is set to 1 and the latex command is found, the circuit is created in ps format by using the qasm2tex.py code from I. Chuang (https://www.media.mit.edu/quanta/qasm2circ/)
+If "printout" is set to 1, the basis states with probabilities > 1/Inverse_P_threshold  are printed at the end 
 
-The probabilities of all the basis states are plotted
-if plot is set to 1 
+If "plot" is set to 1, the probabilities of all the basis states are plotted
