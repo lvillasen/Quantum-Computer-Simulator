@@ -7,7 +7,7 @@ Compatible with the syntax and output code of IBM's Quantum Experience
 
 	IBM Quantum Experience (https://quantumexperience.ng.bluemix.net/)
 
-#Usage 
+# Usage 
 
 	python QCSim.py samples/example_YYY.txt 
 
@@ -19,7 +19,7 @@ For many more examples, the possibility to use a real quantum computer and
 
 an excellent tutorial, you can visit the website "IBM Quantum Experience"
 
-#Brief description
+# Brief description
 
 This is an ideal simulator designed to be fast with speeds comparable to other simulators written in C because the unitary operations are optimized with matrix-free algorithms and the python code is accelerated with Numba. 
 
@@ -63,12 +63,11 @@ The gates and commands implemented so far are the following:
 
 *	**Sign i;** flips sign of states with index i in the standard basis
 
-*	**plot 0(1);** plot off(on)
+*	**plot 0(1);** plot off(on), default 0
 
-*	**printout 0(1);** plot off(on)
+*	**printout 0(1);** plot off(on), default 0
 
-*	**Inverse_P_threshold i;** if printout is set to 1, only the basis states that have probabilities greater than 1/i are printed. This is handy to avoid large printouts when the
-number of qubits is large
+*	**Inverse_P_threshold i;** if printout is set to 1, only the basis states that have probabilities greater than 1/i are printed. This is handy to avoid large printouts when the number of qubits is large
 
 Lines that do not terminate with a semicolon are treated as comments,
 they can be merged with code after the ; terminator or in new lines
