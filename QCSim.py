@@ -685,10 +685,9 @@ for i in range(len(List)):
 
 ################### result
 #@numba.autojit
-def RES(n_qbits,C):
-	#P=[0 for i in range(int(2**np.sum(M))]
-	#P = np.zeros(int(2**np.sum(M)))
-	'''
+def RES(n_qbits,C,M):
+	P = np.zeros(int(2**np.sum(M)))
+	
 	Amp=['' for i in range(int(2**np.sum(M)))]
 
 	for i in range(2**n_qbits):
@@ -714,30 +713,19 @@ def RES(n_qbits,C):
 			else:
 				Amp[num] = Amp[num] + str(' + ({:.3f}'.format(C[i]/np.sqrt(P[num]))) + ')' + '|' + str(s_i) + '>'
 	if  np.sum(M) >0:
-		print('\nProbabilities after measurement:')
-	else:
-		print('\nFinal state:')
+		if np.sum(M) >1: printf('\nProbabilities for measurements of qubits: '),
+		else: printf('\nProbability for measurement of qubit: '),
+		for i in range(n_qbits):
+			if M[i] == 1: printf(str(i)+' '),
 
 	for i in range(int(2**np.sum(M))):
 		s_i = ("{:0%db}"%np.sum(M)).format(i)[::-1]
-		if P[i] != 0:
+		if P[i] >  0.00000000001:
 			if  np.sum(M) >0:
 				printf('\nP(' + str(s_i) + ') = '),
 				print(P[i])
 			printf('|psi> = '),
 			print(Amp[i])
-	'''
-	printf('  Final state |psi> = '),
-	k1=0
-	psi=''
-	for k in range(2**n_qbits):
-		s_i=("{:0%db}"%n_qbits).format(k)[::-1]
-		if C[k] != 0: 
-			k1+=1
-			if k1 == 1: psi += str('({:.3f}'.format(C[k])) + ')' + '|'+s_i+'> '
-			else:psi += '+ '+ str('({:.3f}'.format(C[k])) + ')' + str('|'+s_i+'> ')
-	psi=string.replace(psi,'+ -', '- ')
-	print(psi)
 	return
 
 @numba.vectorize([numba.float64(numba.complex128),numba.float32(numba.complex64)])
@@ -747,7 +735,7 @@ def abs2(x):
 
 @numba.autojit
 def RESULT(n_qbits,C,P_threshold):
-	print('  Final basis states with P >', P_threshold)
+	print('\nFinal basis states with P >', P_threshold)
 	P_vec = abs2(C)
 	for k in range(2**n_qbits):
 		if P_vec[k] > P_threshold:
@@ -777,7 +765,7 @@ def PLOT(n_qbits,C):
 	return 
 
 if printout == 1: RESULT(n_qbits,C,P_threshold)
-
+if np.sum(M) > 0 : RES(n_qbits,C,M)
 
 if plot == 1: 
 	import matplotlib.pyplot as plt
