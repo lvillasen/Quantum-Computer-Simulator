@@ -24,7 +24,7 @@
 # python QCSim.py samples/example_name.txt
 from __future__ import print_function
 import numpy as np
-import numba
+#import numba # removed due to new updates giving errors
 import sys
 import string
 import random
