@@ -21,7 +21,7 @@ an excellent tutorial, you can visit the website "IBM Quantum Experience"
 
 # Brief description
 
-This is an ideal simulator designed to be fast with speeds comparable to other simulators written in C because the unitary operations are optimized with matrix-free algorithms and the python code is accelerated with Numba. 
+This is an ideal simulator. The unitary operations are optimized with matrix-free algorithms. 
 
 The maximum number of qubits it can handle is limited, in a natural way, by the resources available on the system used to run the programs. For instance, the 18-qubit Grover-search example provided (402 repetition of the basic search algorithm) runs in a few seconds on a typical laptop.
 
