@@ -18,6 +18,7 @@
 # 2/10/2017 added acceleration with numba
 # 2/27/2017 optimized the Grover algorithm
 # 3/2/2023 removed Numba acceleration
+# 3/2/2023 changed plotting option from semilog to plot
 
 
 # Usage
@@ -760,7 +761,8 @@ def PLOT(n_qbits,C):
 	plt.ylabel("Probability",fontsize= 20)
 	fig.tight_layout()
 	plt.subplots_adjust(left=0.2, bottom=0.2, right=0.8, top=0.8)
-	plt.semilogx(x,y1,'bo',x,y1,'r--')
+	#plt.semilogx(x,y1,'bo',x,y1,'r--')
+	plt.plot(x,y1,'bo',x,y1,'r--')
 	#plt.show()
 	plt.savefig('plot.png')
 	return 
