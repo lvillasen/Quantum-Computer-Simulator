@@ -219,7 +219,7 @@ def print_state(g,n_qbits,verbose,B):
 				else:psi += '+ '+ str('({:.3f}'.format(B[k])) + ')' + str('|'+s_i+'> ')
 		psi=str.replace(psi,'+ -', '- ')
 		print(psi)
-		print
+		print()
 	C = B
 	A = B
 	return A,C
@@ -255,6 +255,7 @@ def ID(n_qbits,qbit,A):
 
 #@jit
 def H(n_qbits,qbit,A):
+	print('Hadamard gate applied to qubit ', qbit)
 	B = np.zeros(2**n_qbits,dtype=np.complex_)
 	isq2 = 1/np.sqrt(2)
 	for j in range(2**n_qbits):
@@ -474,7 +475,7 @@ if initial == -1:
 			else:psi+='+ '+ str('({:.3f}'.format(A[k])) + ')' + str('|'+s_i+'> ')
 	psi=str.replace(psi,'+ -', '- ')
 	print(psi)
-	print
+	print()
 else:
 	k1=0
 	psi=''
@@ -486,7 +487,7 @@ else:
 			else:psi+='+ '+ str('({:.3f}'.format(A[k])) + ')' + str('|'+s_i+'> ')
 	psi=str.replace(psi,'+ -', '- ')
 	print(psi)
-	print
+	print()
 
 for i in range(len(List)):
 	command=List[i]
